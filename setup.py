@@ -4,9 +4,9 @@ setup(
     name='TeamFightTacticsBot',
     version='',
     packages=[''],
-    url='',
+    url='https://github.com/ConnorWolanski/TeamFightTacticsBot.git',
     license='',
-    author='Connor',
-    author_email='',
-    description=''
+    author='Connor Wolanski and Cody Alexander',
+    author_email='cwolanski@cpp.edu and csalexander@cpp.edu',
+    description='AI bot that plays Team fight Tactics'
 )
