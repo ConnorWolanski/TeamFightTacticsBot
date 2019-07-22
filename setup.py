@@ -8,5 +8,5 @@ setup(
     license='',
     author='Connor Wolanski and Cody Alexander',
     author_email='cwolanski@cpp.edu and csalexander@cpp.edu',
-    description='AI bot that plays Team fight Tactics'
+    description='Artificial intelligence bot that plays Team fight Tactics'
 )
