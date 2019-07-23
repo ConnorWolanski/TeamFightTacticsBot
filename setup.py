@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='TeamFightTacticsBot',
-    version='',
+    version='A  ',
     packages=[''],
     url='https://github.com/ConnorWolanski/TeamFightTacticsBot.git',
     license='',
