@@ -93,7 +93,11 @@ def checkQueue(x, y):
         im = ImageGrab.grab(bbox=(x + 468, y + 234, x + 743, y + 424))
         im.save("queue_screenshot.png")
         qSS = Image.open("queue_screenshot.png")
-    click(x + 600, y + 540)
+
+    #Accept queue
+    #click(x + 600, y + 540)
+    #Decline queue
+    click(x + 600, y + 600)
     print("done")
 
 
