@@ -2,11 +2,11 @@ from setuptools import setup
 
 setup(
     name='TeamFightTacticsBot',
-    version='A  ',
+    version='1.0',
     packages=[''],
     url='https://github.com/ConnorWolanski/TeamFightTacticsBot.git',
     license='',
 author='Connor Wolanski and Cody Alexander',
-author_email='cwolanski@cpp.edu and csalexander@cpp.edu',
+author_email='cwolanski<at>cpp.edu and csalexander<at>cpp.edu',
 description='Artificial intelligence bot that plays Team fight Tactics'
 )
