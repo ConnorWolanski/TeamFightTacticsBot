@@ -58,6 +58,7 @@ def compareimagetoplaybutton(input):
                 pixelsaccepted += 1
 
     #print(str(pixelsaccepted))
+    print("Could not find the play button!")
     return False
 
 
@@ -75,6 +76,7 @@ def compareImages(input, master):
             isSimilar = comparepixels(search[x, y], searchFrom[x, y])
             if isSimilar:
                 pixelsaccepted += 1
+
     return False
 
 
