@@ -36,7 +36,7 @@ def comparepixels(master, input):
 
 
 def compareimagetoplaybutton(input):
-    playbuttonimage = Image.open("play_button.png")
+    playbuttonimage = Image.open("play_button.PNG")
     pixels = input.load()
     width, height = playbuttonimage.size
     playbuttonimage = playbuttonimage.load()
@@ -65,7 +65,7 @@ def compareImages(input, master):
     width, height = master.size
     search = input.load()
     searchFrom = master.load()
-    pixelswanted = width * height * percentageaccuracy
+    pixelswanted = (width * height) * percentageaccuracy
     pixelsaccepted = 0
     for x in range(width):
         for y in range(height):
@@ -83,15 +83,15 @@ def checkQueue(x, y):
     getscreen()
     qSS = Image.open("screen.png")
     im = ImageGrab.grab(bbox=(x + 469, y + 234, x + 744, y + 424))
-    im.save("queueScreenShot.png")
-    qSS = Image.open("queueScreenShot.png")
-    qC = Image.open("queueCheck.png")
+    im.save("queue_screenshot.png")
+    qSS = Image.open("queue_screenshot.png")
+    qC = Image.open("queue_check.PNG")
     popped = False
     while (popped == False):
-        popped == compareImages(qSS, qC)
+        popped = compareImages(qSS, qC)
         im = ImageGrab.grab(bbox=(x + 468, y + 234, x + 743, y + 424))
-        im.save("queueScreenShot.png")
-        qSS = Image.open("queueScreenShot.png")
+        im.save("queue_screenshot.png")
+        qSS = Image.open("queue_screenshot.png")
     click(x + 600, y + 540)
     print("done")
 
@@ -101,7 +101,7 @@ def startGame():
     screenImage = Image.open("screen.png")
     screen = screenImage.load()
 
-    playbuttonimage = Image.open("play_button.png")
+    playbuttonimage = Image.open("play_button.PNG")
     playbuttonimage = playbuttonimage.convert('RGB')
     playbuttonimage = playbuttonimage.load()
     playButtonLocation = (0, 0)
