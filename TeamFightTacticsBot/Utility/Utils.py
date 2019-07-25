@@ -16,6 +16,30 @@ from TeamFightTacticsBot.Utility.Constants import USER_32
 import TeamFightTacticsBot.Utility.Constants as Constants
 
 
+def scan_shop():
+    screen = get_screen()
+    shop_slots = []
+    shop_slots.append(screen.crop((479, 927, 673, 1072)))
+    shop_slots.append(screen.crop((680, 927, 874, 1072)))
+    shop_slots.append(screen.crop((881, 927, 1075, 1072)))
+    shop_slots.append(screen.crop((1083, 927, 1277, 1072)))
+    shop_slots.append(screen.crop((1284, 927, 1478, 1072)))
+    return shop_slots
+
+
+def shop_to_character():
+    character_slots = []
+    shop_slots = scan_shop()
+    for slot in shop_slots:
+        character_slots.append(character_to_string(shop_slots[slot]))
+    return character_slots
+
+
+def character_to_string(character_image):
+    character = "hello"
+    return character
+
+
 def get_into_game():
     play_button_location = find_play_button()
 
