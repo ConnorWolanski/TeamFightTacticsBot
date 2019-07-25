@@ -1,5 +1,7 @@
 from TeamFightTacticsBot.Utility.BotController import bot_initialize
 import TeamFightTacticsBot.Utility.Constants as Constants
+from PIL import Image
+from TeamFightTacticsBot.Utility.Utils import check_place
 import os
 
 
@@ -15,6 +17,8 @@ def start():
 
     if debugging:
         Constants.variables_initialize(os.path.dirname(__file__))
+        test = Image.open("first.png")
+        print(str(check_place(test)))
 
 
 start()
