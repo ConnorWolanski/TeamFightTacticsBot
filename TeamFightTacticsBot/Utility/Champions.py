@@ -27,7 +27,7 @@ class Champions(Enum):
     PYKE = Champion("Pyke", 2, 600, .6, 60, 1, 25, 20)
     REKSAI = Champion("Reksai", 2, 650, .65, 40, 1, 20, 20)
     SHEN = Champion("Shen", 2, 650, .6, 65, 1, 30, 20)
-    TWISTEDFATE = Champion("Twistedfate", 2, 450, .75, 40, 3, 20, 20)
+    TWISTED_FATE = Champion("Twisted Fate", 2, 450, .75, 40, 3, 20, 20)
     VARUS = Champion("Varus", 2, 500, .7, 50, 4, 25, 20)
     ZED = Champion("Zed", 2, 650, .65, 65, 1, 25, 20)
     # 3 Cost
@@ -45,10 +45,10 @@ class Champions(Enum):
     VOLIBEAR = Champion("Volibear", 3, 700, .55, 75, 1, 30, 20)
     # 4 Cost
     AKALI = Champion("Akali", 4, 650, .7, 70, 1, 20, 20)
-    AURELIONSOL = Champion("Aurelionsol", 4, 600, .6, 40, 3, 20, 20)
+    AURELION_SOL = Champion("Aurelion Sol", 4, 600, .6, 40, 3, 20, 20)
     BRAND = Champion("Brand", 4, 700, .6, 60, 3, 25, 20)
     CHOGATH = Champion("Chogath", 4, 1000, .55, 70, 1, 20, 20)
-    DRAVEN = Champion("Dravem", 4, 700, .75, 75, 3, 25, 20)
+    DRAVEN = Champion("Draven", 4, 700, .75, 75, 3, 25, 20)
     GNAR = Champion("Gnar", 4, 750, .7, 45, 2, 30, 20)
     KINDRED = Champion("Kindred", 4, 600, .65, 55, 3, 20, 20)
     LEONA = Champion("Leona", 4, 750, .55, 45, 1, 55, 20)
@@ -57,7 +57,6 @@ class Champions(Enum):
     ANIVIA = Champion("Anivia", 5, 650, .6, 40, 3, 20, 20)
     KARTHUS = Champion("Karthus", 5, 850, .65, 65, 3, 25, 20)
     KAYLE = Champion("Kayle", 5, 800, 1.1, 60, 3, 35, 20)
-    MISSFORTUNE = Champion("Missfortune", 5, 650, .85, 75, 3, 20, 20)
+    MISS_FORTUNE = Champion("Miss Fortune", 5, 650, .85, 75, 3, 20, 20)
     SWAIN = Champion("Swain", 5, 850, .65, 65, 2, 25, 20)
     YASUO = Champion("Yasuo", 5, 700, 1, 65, 1, 35, 25)
-
