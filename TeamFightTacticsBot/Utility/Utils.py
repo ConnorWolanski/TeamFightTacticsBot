@@ -12,6 +12,9 @@ from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_VARIANCE_ALLOWED
 from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_ACCURACY
 from TeamFightTacticsBot.Utility.Constants import USER_32
 
+# Global Variable imports
+import TeamFightTacticsBot.Utility.Constants as Constants
+
 
 def get_into_game():
     get_screen()
@@ -22,6 +25,7 @@ def get_into_game():
         return
 
     click_through_to_game(play_button_location)
+    Constants.in_game = True
 
 
 def click_through_to_game(point):
@@ -68,9 +72,9 @@ def check_queue(point):
 
     # Accept queue
     # click(x + 600, y + 540)
+
     # Decline queue
     click(x + 600, y + 600)
-    print("Checked queue")
 
 
 def find_play_button():
