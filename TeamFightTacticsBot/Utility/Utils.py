@@ -17,7 +17,6 @@ import TeamFightTacticsBot.Utility.Constants as Constants
 
 
 def get_into_game():
-    get_screen()
     play_button_location = find_play_button()
 
     if play_button_location is None:
@@ -58,16 +57,16 @@ def check_queue(point):
     y = point.y
 
     image = image_grab.grab(bbox=(x + 469, y + 234, x + 744, y + 424))
-    image.save("queue_screenshot.png")
-    queue_screenshot = Image.open("queue_screenshot.png")
-    queue_check = Image.open("queue_check.PNG")
+    image.save(get_analyzable_relative_path() + "queue_screenshot.png")
+    queue_screenshot = Image.open(get_analyzable_relative_path() + "queue_screenshot.png")
+    queue_check = Image.open(get_button_relative_path() + "queue_check.PNG")
 
     popped = False
     while not popped:
         popped = compare_images(queue_screenshot, queue_check)
         image = image_grab.grab(bbox=(x + 468, y + 234, x + 743, y + 424))
-        image.save("queue_screenshot.png")
-        queue_screenshot = Image.open("queue_screenshot.png")
+        image.save(get_analyzable_relative_path() + "queue_screenshot.png")
+        queue_screenshot = Image.open(get_analyzable_relative_path() + "queue_screenshot.png")
         time.sleep(.5)
 
     # Accept queue
@@ -78,23 +77,22 @@ def check_queue(point):
 
 
 def find_play_button():
-    screen_image = Image.open("screen.png")
+    get_screen()
+    screen_image = Image.open(get_analyzable_relative_path() + "screen.png")
     screen = screen_image.load()
-    play_button_location = None
 
-    play_button_image = Image.open("play_button.PNG")
+    play_button_image = Image.open(get_button_relative_path() + "play_button.PNG")
     play_button_pixels = play_button_image.convert('RGB')
     play_button_pixels = play_button_pixels.load()
 
     for x in range(get_screensize()[0]):
         for y in range(get_screensize()[1]):
-            if play_button_pixels[0, 0] == screen[x, y]:
-                cropped_image = screen_image.crop((x, y, x + 200, y + 50))
+            if compare_pixels_strictly(screen[x, y], play_button_pixels[0, 0], 25):
+                cropped_image = screen_image.crop((x, y, x + 154, y + 38))
                 if compare_images(cropped_image, play_button_image):
-                    play_button_location = Point(x, y)
-                    break
+                    return Point(x, y)
 
-    return play_button_location
+    return None
 
 
 def compare_images(tested, master):
@@ -117,8 +115,13 @@ def compare_images(tested, master):
 
 
 def compare_pixels(tested, master):
-    # Each input is a pixel with array values as such: [R, G, B, A]
     variance_allowed = (255 * PERCENTAGE_VARIANCE_ALLOWED) * 3
+
+    return compare_pixels_strictly(tested, master, variance_allowed)
+
+
+def compare_pixels_strictly(tested, master, variance_allowed):
+    # Each input is a pixel with array values as such: [R, G, B, A]
 
     # Variance for red component
     variance = abs(master[0] - tested[0])
@@ -130,12 +133,16 @@ def compare_pixels(tested, master):
     return variance < variance_allowed
 
 
-def get_screensize():
-    return USER_32.GetSystemMetrics(0), USER_32.GetSystemMetrics(1)
+def get_button_relative_path():
+    return Constants.MAIN_FILE_LOCATION + "/Resources/Final/Buttons/"
+
+
+def get_analyzable_relative_path():
+    return Constants.MAIN_FILE_LOCATION + "/Resources/Analyzable/"
 
 
 def get_screen():
-    screenshot_name = "screen.png"
+    screenshot_name = get_analyzable_relative_path() + "screen.png"
 
     image = auto_gui.grab()
     image.save(screenshot_name)
@@ -143,7 +150,10 @@ def get_screen():
     return Image.open(screenshot_name)
 
 
+def get_screensize():
+    return USER_32.GetSystemMetrics(0), USER_32.GetSystemMetrics(1)
+
+
 def click(x, y):
     auto_gui.click(x, y)
     print("Clicked at (" + str(x) + ", " + str(y) + ")")
-
