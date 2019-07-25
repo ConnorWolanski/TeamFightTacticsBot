@@ -17,7 +17,7 @@ def start():
 
     if debugging:
         Constants.variables_initialize(os.path.dirname(__file__))
-        test = Image.open("first.png")
+        test = Image.open("seventh.png")
         print(str(check_place(test)))
 
 
