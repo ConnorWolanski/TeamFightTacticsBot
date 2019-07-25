@@ -9,7 +9,7 @@ import cv2 as cv
 import numpy
 # Objects
 from TeamFightTacticsBot.Structures.Point import Point
-from TeamFightTacticsBot.Structures.ChampionCard import ChampionCard
+from TeamFightTacticsBot.Structures.Player import Player
 
 # Constants
 from TeamFightTacticsBot.Utility.Champions import Champions
@@ -92,14 +92,7 @@ def get_champion_from_list_index(index):
 
 def get_gold(screen):
     gold_image = screen.crop((868, 880, 910, 913))
-    new_image = cv.bilateralFilter(numpy.array(gold_image), 9,  75, 75)
-    new_image = cv.threshold(new_image, 127,  255, cv.THRESH_BINARY)[1]
-    im = Image.fromarray(new_image)
-    im = ImageOps.invert(im)
-    im = im.resize((63, 50))
-    im.show()
-    gold = get_text.image_to_string(im, lang='eng',
-                                    config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+    gold = int_from_image(gold_image)
     return gold
 
 
@@ -123,6 +116,202 @@ def check_place(screen):
         return 8
     else:
         return 8
+
+
+def get_player_healths(screen, place):
+    healths = []
+    # if you are in 1st
+    if place is 1:
+        healths.append(int_from_image(screen.crop((1785, 215, 1827, 240))))
+        healths.append(int_from_image(screen.crop((1825, 303, 1850, 319))))
+        healths.append(int_from_image(screen.crop((1825, 376, 1850, 392))))
+        healths.append(int_from_image(screen.crop((1825, 448, 1850, 464))))
+        healths.append(int_from_image(screen.crop((1825, 519, 1850, 537))))
+        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
+        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
+        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+    # if you are in 2nd
+    elif place is 2:
+        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
+        healths.append(int_from_image(screen.crop((1785, 285, 1827, 310))))
+        healths.append(int_from_image(screen.crop((1825, 373, 1850, 391))))
+        healths.append(int_from_image(screen.crop((1825, 446, 1850, 464))))
+        healths.append(int_from_image(screen.crop((1825, 519, 1850, 537))))
+        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
+        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
+        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+    # if you are in 3rd
+    elif place is 3:
+        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
+        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
+        healths.append(int_from_image(screen.crop((1785, 359, 1827, 384))))
+        healths.append(int_from_image(screen.crop((1825, 446, 1850, 464))))
+        healths.append(int_from_image(screen.crop((1825, 519, 1850, 537))))
+        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
+        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
+        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+    # if you are in 4th
+    elif place is 4:
+        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
+        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
+        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
+        healths.append(int_from_image(screen.crop((1785, 432, 1827, 457))))
+        healths.append(int_from_image(screen.crop((1825, 519, 1850, 537))))
+        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
+        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
+        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+    # if you are in 5th
+    elif place is 5:
+        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
+        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
+        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
+        healths.append(int_from_image(screen.crop((1825, 424, 1850, 442))))
+        healths.append(int_from_image(screen.crop((1785, 505, 1827, 530))))
+        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
+        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
+        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+    # if you are in 6th
+    elif place is 6:
+        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
+        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
+        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
+        healths.append(int_from_image(screen.crop((1825, 424, 1850, 442))))
+        healths.append(int_from_image(screen.crop((1825, 497, 1850, 515))))
+        healths.append(int_from_image(screen.crop((1785, 578, 1827, 603))))
+        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
+        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+    # if you are in 7th
+    elif place is 7:
+        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
+        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
+        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
+        healths.append(int_from_image(screen.crop((1825, 424, 1850, 442))))
+        healths.append(int_from_image(screen.crop((1825, 497, 1850, 515))))
+        healths.append(int_from_image(screen.crop((1825, 570, 1850, 588))))
+        healths.append(int_from_image(screen.crop((1785, 651, 1827, 676))))
+        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+    # if you are in 8th
+    elif place is 8:
+        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
+        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
+        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
+        healths.append(int_from_image(screen.crop((1825, 424, 1850, 442))))
+        healths.append(int_from_image(screen.crop((1825, 497, 1850, 515))))
+        healths.append(int_from_image(screen.crop((1825, 570, 1850, 588))))
+        healths.append(int_from_image(screen.crop((1825, 643, 1850, 661))))
+        healths.append(int_from_image(screen.crop((1785, 724, 1827, 749))))
+
+    return healths
+
+
+def get_player_names(screen, place):
+    players = []
+    # if you are in 1st
+    if place is 1:
+        players.append("Me")
+        players.append(string_from_image(screen.crop((1712, 303, 1815, 319))))
+        players.append(string_from_image(screen.crop((1712, 376, 1815, 392))))
+        players.append(string_from_image(screen.crop((1712, 448, 1815, 464))))
+        players.append(string_from_image(screen.crop((1712, 519, 1815, 537))))
+        players.append(string_from_image(screen.crop((1712, 591, 1815, 609))))
+        players.append(string_from_image(screen.crop((1712, 664, 1815, 682))))
+        players.append(string_from_image(screen.crop((1712, 737, 1815, 755))))
+    # if you are in 2nd
+    elif place is 2:
+        players.append(string_from_image(screen.crop((1712, 205, 1815, 223))))
+        players.append("Me")
+        players.append(string_from_image(screen.crop((1712, 373, 1815, 391))))
+        players.append(string_from_image(screen.crop((1712, 446, 1815, 464))))
+        players.append(string_from_image(screen.crop((1712, 519, 1815, 537))))
+        players.append(string_from_image(screen.crop((1712, 591, 1815, 609))))
+        players.append(string_from_image(screen.crop((1712, 664, 1815, 682))))
+        players.append(string_from_image(screen.crop((1712, 737, 1815, 755))))
+    # if you are in 3rd
+    elif place is 3:
+        players.append(string_from_image(screen.crop((1712, 205, 1815, 223))))
+        players.append(string_from_image(screen.crop((1712, 278, 1815, 296))))
+        players.append("Me")
+        players.append(string_from_image(screen.crop((1712, 446, 1815, 464))))
+        players.append(string_from_image(screen.crop((1712, 519, 1815, 537))))
+        players.append(string_from_image(screen.crop((1712, 591, 1815, 609))))
+        players.append(string_from_image(screen.crop((1712, 664, 1815, 682))))
+        players.append(string_from_image(screen.crop((1712, 737, 1815, 755))))
+    # if you are in 4th
+    elif place is 4:
+        players.append(string_from_image(screen.crop((1712, 205, 1815, 223))))
+        players.append(string_from_image(screen.crop((1712, 278, 1815, 296))))
+        players.append(string_from_image(screen.crop((1712, 351, 1815, 369))))
+        players.append("Me")
+        players.append(string_from_image(screen.crop((1712, 519, 1815, 537))))
+        players.append(string_from_image(screen.crop((1712, 591, 1815, 609))))
+        players.append(string_from_image(screen.crop((1712, 664, 1815, 682))))
+        players.append(string_from_image(screen.crop((1712, 737, 1815, 755))))
+    # if you are in 5th
+    elif place is 5:
+        players.append(string_from_image(screen.crop((1712, 205, 1815, 223))))
+        players.append(string_from_image(screen.crop((1712, 278, 1815, 296))))
+        players.append(string_from_image(screen.crop((1712, 351, 1815, 369))))
+        players.append(string_from_image(screen.crop((1712, 424, 1815, 442))))
+        players.append("Me")
+        players.append(string_from_image(screen.crop((1712, 591, 1815, 609))))
+        players.append(string_from_image(screen.crop((1712, 664, 1815, 682))))
+        players.append(string_from_image(screen.crop((1712, 737, 1815, 755))))
+    # if you are in 6th
+    elif place is 6:
+        players.append(string_from_image(screen.crop((1712, 205, 1815, 223))))
+        players.append(string_from_image(screen.crop((1712, 278, 1815, 296))))
+        players.append(string_from_image(screen.crop((1712, 351, 1815, 369))))
+        players.append(string_from_image(screen.crop((1712, 424, 1815, 442))))
+        players.append(string_from_image(screen.crop((1712, 497, 1815, 515))))
+        players.append("Me")
+        players.append(string_from_image(screen.crop((1712, 664, 1815, 682))))
+        players.append(string_from_image(screen.crop((1712, 737, 1815, 755))))
+    # if you are in 7th
+    elif place is 7:
+        players.append(string_from_image(screen.crop((1712, 205, 1815, 223))))
+        players.append(string_from_image(screen.crop((1712, 278, 1815, 296))))
+        players.append(string_from_image(screen.crop((1712, 351, 1815, 369))))
+        players.append(string_from_image(screen.crop((1712, 424, 1815, 442))))
+        players.append(string_from_image(screen.crop((1712, 497, 1815, 515))))
+        players.append(string_from_image(screen.crop((1712, 570, 1815, 588))))
+        players.append("Me")
+        players.append(string_from_image(screen.crop((1712, 737, 1815, 755))))
+    # if you are in 8th
+    elif place is 8:
+        players.append(string_from_image(screen.crop((1712, 205, 1815, 223))))
+        players.append(string_from_image(screen.crop((1712, 278, 1815, 296))))
+        players.append(string_from_image(screen.crop((1712, 351, 1815, 369))))
+        players.append(string_from_image(screen.crop((1712, 424, 1815, 442))))
+        players.append(string_from_image(screen.crop((1712, 497, 1815, 515))))
+        players.append(string_from_image(screen.crop((1712, 570, 1815, 588))))
+        players.append(string_from_image(screen.crop((1712, 643, 1815, 661))))
+        players.append("Me")
+
+    return players
+
+
+def string_from_image(image):
+    new_image = cv.bilateralFilter(numpy.array(image), 9,  75, 75)
+    new_image = cv.threshold(new_image, 127,  255, cv.THRESH_BINARY)[1]
+    im = Image.fromarray(new_image)
+    im = ImageOps.invert(im)
+    # im.show()
+    name = get_text.image_to_string(im, lang='eng',
+                                    config="-c tessedit_char_whitelist=01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+    # print(name)
+    return name
+
+
+def int_from_image(image):
+    new_image = cv.bilateralFilter(numpy.array(image), 9,  75, 75)
+    new_image = cv.threshold(new_image, 127,  255, cv.THRESH_BINARY)[1]
+    im = Image.fromarray(new_image)
+    im = ImageOps.invert(im)
+    im = im.resize((int(2*im.size[0]), int(2*im.size[1])))
+    # im.show()
+    num = get_text.image_to_string(im, lang='eng', config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+    return num
+
 
 def get_into_game():
     play_button_location = find_play_button()
