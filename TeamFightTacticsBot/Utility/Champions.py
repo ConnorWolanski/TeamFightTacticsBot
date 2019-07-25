@@ -3,7 +3,7 @@ from TeamFightTacticsBot.Structures.Champion import Champion
 
 
 class Champions(Enum):
-    # name, cost, health, attack_speed, attack_damage, rangee, armor, magic_resist
+    # name, cost, health, attack_speed, attack_damage, range, armor, magic_resist
     # 1 Cost
     DARIUS = Champion("Darius", 1, 600, .5, 50, 1, 25, 20)
     ELISE = Champion("Elise", 1, 450, .6, 40, 2, 20, 20)
