@@ -8,6 +8,7 @@ from PIL import Image
 from TeamFightTacticsBot.Structures.Point import Point
 
 # Constants
+from TeamFightTacticsBot.Utility.Champions import Champions
 from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_VARIANCE_ALLOWED
 from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_ACCURACY
 from TeamFightTacticsBot.Utility.Constants import USER_32
@@ -27,17 +28,62 @@ def scan_shop():
     return shop_slots
 
 
-def shop_to_character():
-    character_slots = []
+def shop_to_champion():
+    champion_slots = []
     shop_slots = scan_shop()
     for slot in shop_slots:
-        character_slots.append(character_to_string(shop_slots[slot]))
-    return character_slots
+        champion_slots.append(image_to_champion(shop_slots[slot]))
+    return champion_slots
 
 
-def character_to_string(character_image):
-    character = "hello"
-    return character
+def image_to_champion(champion_image):
+    # Loop through CHARACTER_IMAGE_LIST until accuracy reaches > 90%
+    champion_image_pixels = champion_image.load()
+    cost = get_cost(champion_image_pixels[170, 140])
+    index_start = search_by_cost(cost)
+    is_found = False
+    while (not is_found) and (index_start <= len(Constants.CHARACTER_IMAGE_LIST)):
+        is_found = compare_images_strictly(champion_image, Constants.CHARACTER_IMAGE_LIST[index_start], .9)
+        if is_found:
+            break
+        index_start += 1
+
+    return get_champion_from_list_index(index_start)
+
+
+def get_cost(pixel):
+    if pixel == Constants.COST_CARD_BORDER_COLOR[0]:
+        return 1
+    if pixel == Constants.COST_CARD_BORDER_COLOR[1]:
+        return 2
+    if pixel == Constants.COST_CARD_BORDER_COLOR[2]:
+        return 3
+    if pixel == Constants.COST_CARD_BORDER_COLOR[3]:
+        return 4
+    if pixel == Constants.COST_CARD_BORDER_COLOR[4]:
+        return 5
+
+
+def search_by_cost(cost):
+    if cost is 1:
+        return 0
+    elif cost is 2:
+        return 12
+    elif cost is 3:
+        return 24
+    elif cost is 4:
+        return 36
+    elif cost is 5:
+        return 45
+    return 0
+
+
+def get_champion_from_list_index(index):
+    list_of_champion_enums = []
+    for champ in Champions:
+        list_of_champion_enums.append(champ)
+
+    return list_of_champion_enums[index].value
 
 
 def get_into_game():
@@ -120,11 +166,15 @@ def find_play_button():
 
 
 def compare_images(tested, master):
+    return compare_pixels_strictly(tested, master, PERCENTAGE_ACCURACY)
+
+
+def compare_images_strictly(tested, master, variance_allowed):
     search = tested.load()
     search_from = master.load()
 
     width, height = master.size
-    pixels_wanted = (width * height) * PERCENTAGE_ACCURACY
+    pixels_wanted = (width * height) * variance_allowed
     pixels_accepted = 0
 
     for x in range(width):

@@ -9,7 +9,13 @@ PERCENTAGE_ACCURACY = .8
 PERCENTAGE_VARIANCE_ALLOWED = .1
 USER_32 = ctypes.windll.user32
 MAIN_FILE_LOCATION = ''
+# 0 - 11 1 Cost Champs
+# 12 - 23 2 Cost Champs
+# 24 - 35 3 Cost Champs
+# 36 - 44 4 Cost Champs
+# 45 - 50 5 Cost Champs
 CHARACTER_IMAGE_LIST = []
+COST_CARD_BORDER_COLOR = []
 
 
 def variables_initialize(main_file):
@@ -17,6 +23,8 @@ def variables_initialize(main_file):
     MAIN_FILE_LOCATION = main_file
     global CHARACTER_IMAGE_LIST
     CHARACTER_IMAGE_LIST = load_resources()
+    global COST_CARD_BORDER_COLOR
+    COST_CARD_BORDER_COLOR = get_colors()
     global in_game
     in_game = False
     global screensize
@@ -36,3 +44,15 @@ def load_resources():
             character_image_list.append(image)
 
     return character_image_list
+
+
+def get_colors():
+    color_list = []
+
+    color_list.append(CHARACTER_IMAGE_LIST[0].load()[170, 140])
+    color_list.append(CHARACTER_IMAGE_LIST[12].load()[170, 140])
+    color_list.append(CHARACTER_IMAGE_LIST[24].load()[170, 140])
+    color_list.append(CHARACTER_IMAGE_LIST[36].load()[170, 140])
+    color_list.append(CHARACTER_IMAGE_LIST[45].load()[170, 140])
+
+    return color_list

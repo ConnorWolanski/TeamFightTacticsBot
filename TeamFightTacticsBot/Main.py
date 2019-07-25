@@ -7,7 +7,7 @@ def start():
     if __name__ is not '__main__':
         return
 
-    debugging = False
+    debugging = True
 
     if not debugging:
         Constants.variables_initialize(os.path.dirname(__file__))
