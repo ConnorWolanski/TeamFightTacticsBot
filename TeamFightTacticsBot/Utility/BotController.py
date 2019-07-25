@@ -12,3 +12,4 @@ def start_game():
         get_into_game()
 
     print("Started the game!")
+
