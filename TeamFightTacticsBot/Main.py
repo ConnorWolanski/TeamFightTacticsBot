@@ -20,8 +20,9 @@ def start():
 
     if debugging:
         Constants.variables_initialize(os.path.dirname(__file__))
-        test = Image.open("seventh.png")
+        test = Image.open("unknown.png")
         place = check_place(test)
+        print(place)
         print("Names: " + str(get_player_names(test, place)))
         print("Healths: " + str(get_player_healths(test, place)))
         print("Gold: " + str(get_gold(test)))

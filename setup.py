@@ -6,7 +6,7 @@ setup(
     packages=[''],
     url='https://github.com/ConnorWolanski/TeamFightTacticsBot.git',
     license='',
-    requires=['aenum', 'opencv-python', 'Pillow', 'pyautogui', 'pyscreenshot'],
+    requires=['aenum', 'numpy', 'opencv-python', 'Pillow', 'pyautogui', 'pyscreenshot', 'pytesseract'],
     author='Connor Wolanski and Cody Alexander',
     author_email='cwolanski<at>cpp.edu and csalexander<at>cpp.edu',
     description='Artificial intelligence bot that plays Team fight Tactics.'

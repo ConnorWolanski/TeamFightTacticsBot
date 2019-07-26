@@ -3,10 +3,7 @@ import time
 import pytesseract as get_text
 import pyautogui as auto_gui
 import pyscreenshot as image_grab
-from PIL import Image
-from PIL import ImageOps
-import cv2 as cv
-import numpy
+from PIL import Image, ImageOps
 # Objects
 from TeamFightTacticsBot.Structures.Point import Point
 from TeamFightTacticsBot.Structures.Player import Player
@@ -291,26 +288,67 @@ def get_player_names(screen, place):
 
 
 def string_from_image(image):
-    new_image = cv.bilateralFilter(numpy.array(image), 9,  75, 75)
-    new_image = cv.threshold(new_image, 127,  255, cv.THRESH_BINARY)[1]
-    im = Image.fromarray(new_image)
-    im = ImageOps.invert(im)
-    # im.show()
-    name = get_text.image_to_string(im, lang='eng',
-                                    config="-c tessedit_char_whitelist=01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
-    # print(name)
+    image = make_image_readable(image)
+    name = get_text.image_to_string(image, lang='eng',
+                                    config="-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
     return name
 
 
 def int_from_image(image):
-    new_image = cv.bilateralFilter(numpy.array(image), 9,  75, 75)
-    new_image = cv.threshold(new_image, 127,  255, cv.THRESH_BINARY)[1]
-    im = Image.fromarray(new_image)
-    im = ImageOps.invert(im)
-    im = im.resize((int(2*im.size[0]), int(2*im.size[1])))
-    # im.show()
-    num = get_text.image_to_string(im, lang='eng', config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
-    return num
+    # image.show()
+    image = make_image_readable(image)
+    # image.show()
+    return get_text.image_to_string(image, lang='eng', config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+
+
+def make_image_readable(image):
+    image = image.convert('L')
+
+    image = ImageOps.invert(image)
+    image_pixels = image.load()
+    data = []
+
+    for y in range(image.size[1]):
+        for x in range(image.size[0]):
+            pixel = image_pixels[x, y]
+            if pixel < 125:
+                data.append(0)
+            else:
+                data.append(255)
+
+    image = Image.new('1', (image.size[0], image.size[1]))
+    image.putdata(data)
+
+    resizable = tuple(2*x for x in image.size)
+    image = image.resize(resizable)
+
+    width, height = image.size
+    image_pixels = image.load()
+
+    data = []
+
+    for y in range(height):
+        for x in range(width):
+            if x == 0 or x == width-1 or y == 0 or y == height-1:
+                data.append(image_pixels[x, y])
+                continue
+
+            surrounding_black = [image_pixels[x, y - 1], image_pixels[x - 1, y],
+                                 image_pixels[x + 1, y], image_pixels[x, y + 1]]
+            count = 0
+            for pixel in surrounding_black:
+                if pixel == 0:
+                    count += 1
+
+            if count > 1:
+                data.append(0)
+            else:
+                data.append(255)
+
+    image = Image.new('1', (width, height))
+    image.putdata(data)
+
+    return image
 
 
 def get_into_game():
