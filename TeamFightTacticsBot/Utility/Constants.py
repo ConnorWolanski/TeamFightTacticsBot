@@ -15,6 +15,7 @@ MAIN_FILE_LOCATION = ''
 # 36 - 44 4 Cost Champs
 # 45 - 50 5 Cost Champs
 CHARACTER_IMAGE_LIST = []
+ITEM_IMAGE_LIST = []
 COST_CARD_BORDER_COLOR = []
 
 
@@ -22,7 +23,9 @@ def variables_initialize(main_file):
     global MAIN_FILE_LOCATION
     MAIN_FILE_LOCATION = main_file
     global CHARACTER_IMAGE_LIST
-    CHARACTER_IMAGE_LIST = load_resources()
+    CHARACTER_IMAGE_LIST = load_champion_card_images()
+    global ITEM_IMAGE_LIST
+    ITEM_IMAGE_LIST = load_item_images()
     global COST_CARD_BORDER_COLOR
     COST_CARD_BORDER_COLOR = get_colors()
     global in_game
@@ -31,7 +34,7 @@ def variables_initialize(main_file):
     screensize = USER_32.GetSystemMetrics(0), USER_32.GetSystemMetrics(1)
 
 
-def load_resources():
+def load_champion_card_images():
     character_image_list = []
     index = 0
     champion_image_folder = MAIN_FILE_LOCATION + '/Resources/Final/Champions/'
@@ -44,6 +47,16 @@ def load_resources():
             character_image_list.append(image)
 
     return character_image_list
+
+
+def load_item_images():
+    item_image_list = []
+    item_image_folder = MAIN_FILE_LOCATION + '/Resources/Final/Items/'
+    for item_image in glob.glob(item_image_folder + "/*.png"):
+        image = Image.open(item_image)
+        item_image_list.append(image)
+
+    return item_image_list
 
 
 def get_colors():

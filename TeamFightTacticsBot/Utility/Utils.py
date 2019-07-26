@@ -4,15 +4,16 @@ import pytesseract as get_text
 import pyautogui as auto_gui
 import pyscreenshot as image_grab
 from PIL import Image, ImageOps
+
 # Objects
 from TeamFightTacticsBot.Structures.Point import Point
-from TeamFightTacticsBot.Structures.Player import Player
 
 # Constants
 from TeamFightTacticsBot.Utility.Champions import Champions
 from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_VARIANCE_ALLOWED
 from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_ACCURACY
 from TeamFightTacticsBot.Utility.Constants import USER_32
+
 # Global Variable imports
 import TeamFightTacticsBot.Utility.Constants as Constants
 
@@ -119,86 +120,96 @@ def get_player_healths(screen, place):
     healths = []
     # if you are in 1st
     if place is 1:
-        healths.append(int_from_image(screen.crop((1785, 215, 1827, 240))))
-        healths.append(int_from_image(screen.crop((1825, 303, 1850, 319))))
-        healths.append(int_from_image(screen.crop((1825, 376, 1850, 392))))
-        healths.append(int_from_image(screen.crop((1825, 448, 1850, 464))))
-        healths.append(int_from_image(screen.crop((1825, 519, 1850, 537))))
-        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
-        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
-        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+        healths.append(safe_get_health(100, screen.crop((1785, 215, 1827, 240))))
+        healths.append(safe_get_health(healths[0], screen.crop((1825, 303, 1850, 319))))
+        healths.append(safe_get_health(healths[1], screen.crop((1825, 376, 1850, 392))))
+        healths.append(safe_get_health(healths[2], screen.crop((1825, 448, 1850, 464))))
+        healths.append(safe_get_health(healths[3], screen.crop((1825, 519, 1850, 537))))
+        healths.append(safe_get_health(healths[4], screen.crop((1825, 591, 1850, 609))))
+        healths.append(safe_get_health(healths[5], screen.crop((1825, 664, 1850, 682))))
+        healths.append(safe_get_health(healths[6], screen.crop((1825, 737, 1850, 755))))
     # if you are in 2nd
     elif place is 2:
-        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
-        healths.append(int_from_image(screen.crop((1785, 285, 1827, 310))))
-        healths.append(int_from_image(screen.crop((1825, 373, 1850, 391))))
-        healths.append(int_from_image(screen.crop((1825, 446, 1850, 464))))
-        healths.append(int_from_image(screen.crop((1825, 519, 1850, 537))))
-        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
-        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
-        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+        healths.append(safe_get_health(100, screen.crop((1825, 205, 1850, 223))))
+        healths.append(safe_get_health(healths[0], screen.crop((1785, 285, 1827, 310))))
+        healths.append(safe_get_health(healths[1], screen.crop((1825, 373, 1850, 391))))
+        healths.append(safe_get_health(healths[2], screen.crop((1825, 446, 1850, 464))))
+        healths.append(safe_get_health(healths[3], screen.crop((1825, 519, 1850, 537))))
+        healths.append(safe_get_health(healths[4], screen.crop((1825, 591, 1850, 609))))
+        healths.append(safe_get_health(healths[5], screen.crop((1825, 664, 1850, 682))))
+        healths.append(safe_get_health(healths[6], screen.crop((1825, 737, 1850, 755))))
     # if you are in 3rd
     elif place is 3:
-        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
-        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
-        healths.append(int_from_image(screen.crop((1785, 359, 1827, 384))))
-        healths.append(int_from_image(screen.crop((1825, 446, 1850, 464))))
-        healths.append(int_from_image(screen.crop((1825, 519, 1850, 537))))
-        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
-        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
-        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+        healths.append(safe_get_health(100, screen.crop((1825, 205, 1850, 223))))
+        healths.append(safe_get_health(healths[0], screen.crop((1825, 278, 1850, 296))))
+        healths.append(safe_get_health(healths[1], screen.crop((1785, 359, 1827, 384))))
+        healths.append(safe_get_health(healths[2], screen.crop((1825, 446, 1850, 464))))
+        healths.append(safe_get_health(healths[3], screen.crop((1825, 519, 1850, 537))))
+        healths.append(safe_get_health(healths[4], screen.crop((1825, 591, 1850, 609))))
+        healths.append(safe_get_health(healths[5], screen.crop((1825, 664, 1850, 682))))
+        healths.append(safe_get_health(healths[6], screen.crop((1825, 737, 1850, 755))))
     # if you are in 4th
     elif place is 4:
-        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
-        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
-        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
-        healths.append(int_from_image(screen.crop((1785, 432, 1827, 457))))
-        healths.append(int_from_image(screen.crop((1825, 519, 1850, 537))))
-        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
-        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
-        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+        healths.append(safe_get_health(100, screen.crop((1825, 205, 1850, 223))))
+        healths.append(safe_get_health(healths[0], screen.crop((1825, 278, 1850, 296))))
+        healths.append(safe_get_health(healths[1], screen.crop((1825, 351, 1850, 369))))
+        healths.append(safe_get_health(healths[2], screen.crop((1785, 432, 1827, 457))))
+        healths.append(safe_get_health(healths[3], screen.crop((1825, 519, 1850, 537))))
+        healths.append(safe_get_health(healths[4], screen.crop((1825, 591, 1850, 609))))
+        healths.append(safe_get_health(healths[5], screen.crop((1825, 664, 1850, 682))))
+        healths.append(safe_get_health(healths[6], screen.crop((1825, 737, 1850, 755))))
     # if you are in 5th
     elif place is 5:
-        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
-        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
-        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
-        healths.append(int_from_image(screen.crop((1825, 424, 1850, 442))))
-        healths.append(int_from_image(screen.crop((1785, 505, 1827, 530))))
-        healths.append(int_from_image(screen.crop((1825, 591, 1850, 609))))
-        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
-        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+        healths.append(safe_get_health(100, screen.crop((1825, 205, 1850, 223))))
+        healths.append(safe_get_health(healths[0], screen.crop((1825, 278, 1850, 296))))
+        healths.append(safe_get_health(healths[1], screen.crop((1825, 351, 1850, 369))))
+        healths.append(safe_get_health(healths[2], screen.crop((1825, 424, 1850, 442))))
+        healths.append(safe_get_health(healths[3], screen.crop((1785, 505, 1827, 530))))
+        healths.append(safe_get_health(healths[4], screen.crop((1825, 591, 1850, 609))))
+        healths.append(safe_get_health(healths[5], screen.crop((1825, 664, 1850, 682))))
+        healths.append(safe_get_health(healths[6], screen.crop((1825, 737, 1850, 755))))
     # if you are in 6th
     elif place is 6:
-        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
-        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
-        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
-        healths.append(int_from_image(screen.crop((1825, 424, 1850, 442))))
-        healths.append(int_from_image(screen.crop((1825, 497, 1850, 515))))
-        healths.append(int_from_image(screen.crop((1785, 578, 1827, 603))))
-        healths.append(int_from_image(screen.crop((1825, 664, 1850, 682))))
-        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+        healths.append(safe_get_health(100, screen.crop((1825, 205, 1850, 223))))
+        healths.append(safe_get_health(healths[0], screen.crop((1825, 278, 1850, 296))))
+        healths.append(safe_get_health(healths[1], screen.crop((1825, 351, 1850, 369))))
+        healths.append(safe_get_health(healths[2], screen.crop((1825, 424, 1850, 442))))
+        healths.append(safe_get_health(healths[3], screen.crop((1825, 497, 1850, 515))))
+        healths.append(safe_get_health(healths[4], screen.crop((1785, 578, 1827, 603))))
+        healths.append(safe_get_health(healths[5], screen.crop((1825, 664, 1850, 682))))
+        healths.append(safe_get_health(healths[6], screen.crop((1825, 737, 1850, 755))))
     # if you are in 7th
     elif place is 7:
-        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
-        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
-        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
-        healths.append(int_from_image(screen.crop((1825, 424, 1850, 442))))
-        healths.append(int_from_image(screen.crop((1825, 497, 1850, 515))))
-        healths.append(int_from_image(screen.crop((1825, 570, 1850, 588))))
-        healths.append(int_from_image(screen.crop((1785, 651, 1827, 676))))
-        healths.append(int_from_image(screen.crop((1825, 737, 1850, 755))))
+        healths.append(safe_get_health(100, screen.crop((1825, 205, 1850, 223))))
+        healths.append(safe_get_health(healths[0], screen.crop((1825, 278, 1850, 296))))
+        healths.append(safe_get_health(healths[1], screen.crop((1825, 351, 1850, 369))))
+        healths.append(safe_get_health(healths[2], screen.crop((1825, 424, 1850, 442))))
+        healths.append(safe_get_health(healths[3], screen.crop((1825, 497, 1850, 515))))
+        healths.append(safe_get_health(healths[4], screen.crop((1825, 570, 1850, 588))))
+        healths.append(safe_get_health(healths[5], screen.crop((1785, 651, 1827, 676))))
+        healths.append(safe_get_health(healths[6], screen.crop((1825, 737, 1850, 755))))
     # if you are in 8th
     elif place is 8:
-        healths.append(int_from_image(screen.crop((1825, 205, 1850, 223))))
-        healths.append(int_from_image(screen.crop((1825, 278, 1850, 296))))
-        healths.append(int_from_image(screen.crop((1825, 351, 1850, 369))))
-        healths.append(int_from_image(screen.crop((1825, 424, 1850, 442))))
-        healths.append(int_from_image(screen.crop((1825, 497, 1850, 515))))
-        healths.append(int_from_image(screen.crop((1825, 570, 1850, 588))))
-        healths.append(int_from_image(screen.crop((1825, 643, 1850, 661))))
-        healths.append(int_from_image(screen.crop((1785, 724, 1827, 749))))
+        healths.append(safe_get_health(100, screen.crop((1825, 205, 1850, 223))))
+        healths.append(safe_get_health(healths[0], screen.crop((1825, 278, 1850, 296))))
+        healths.append(safe_get_health(healths[1], screen.crop((1825, 351, 1850, 369))))
+        healths.append(safe_get_health(healths[2], screen.crop((1825, 424, 1850, 442))))
+        healths.append(safe_get_health(healths[3], screen.crop((1825, 497, 1850, 515))))
+        healths.append(safe_get_health(healths[4], screen.crop((1825, 570, 1850, 588))))
+        healths.append(safe_get_health(healths[5], screen.crop((1825, 643, 1850, 661))))
+        healths.append(safe_get_health(healths[6], screen.crop((1785, 724, 1827, 749))))
 
     return healths
+
+
+def safe_get_health(fallback, image):
+    """
+    health = int_from_image(image)
+    if health == -1:
+    print("set  ")
+    health = fallback
+    return int(health)"""
+    return int_from_image(image)
 
 
 def get_player_names(screen, place):
@@ -295,10 +306,11 @@ def string_from_image(image):
 
 
 def int_from_image(image):
-    # image.show()
     image = make_image_readable(image)
-    # image.show()
-    return get_text.image_to_string(image, lang='eng', config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+    num = get_text.image_to_string(image, lang='eng', config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+    if num == '':
+        num = 0
+    return int(num)
 
 
 def make_image_readable(image):
@@ -347,6 +359,9 @@ def make_image_readable(image):
 
     image = Image.new('1', (width, height))
     image.putdata(data)
+
+    new_size = tuple(2*x for x in image.size)
+    image.resize(new_size)
 
     return image
 
