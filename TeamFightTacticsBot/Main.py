@@ -35,5 +35,4 @@ def start():
         #    print("Gold: " + str(get_gold(test)))
 
 
-
 start()
