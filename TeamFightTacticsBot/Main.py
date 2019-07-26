@@ -24,7 +24,6 @@ def start():
         Constants.variables_initialize(os.path.dirname(__file__))
         test = Image.open("CaraselTest1.png")
         print(str(get_items_carasel(test)))
-
         # for image in Constants.ITEM_IMAGE_LIST:
         #    print(image.size)
         # for item_image in glob.glob(Constants.MAIN_FILE_LOCATION + "/*.png"):
