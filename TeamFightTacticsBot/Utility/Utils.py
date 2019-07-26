@@ -95,21 +95,21 @@ def get_gold(screen):
 
 def check_place(screen):
     place = screen.load()
-    if place[1770, 226] == (145, 109, 49):
+    if compare_pixels_strictly(place[1770, 226], (145, 109, 49), .95):
         return 1
-    elif place[1770, 300] == (145, 109, 49):
+    elif compare_pixels_strictly(place[1770, 300], (145, 109, 49), .95):
         return 2
-    elif place[1770, 372] == (145, 109, 49):
+    elif compare_pixels_strictly(place[1770, 372], (145, 109, 49), .95):
         return 3
-    elif place[1770, 445] == (145, 109, 49):
+    elif compare_pixels_strictly(place[1770, 445], (145, 109, 49), .95):
         return 4
-    elif place[1770, 518] == (145, 109, 49):
+    elif compare_pixels_strictly(place[1770, 518], (145, 109, 49), .95):
         return 5
-    elif place[1770, 591] == (145, 109, 49):
+    elif compare_pixels_strictly(place[1770, 591], (145, 109, 49), .95):
         return 6
-    elif place[1770, 664] == (145, 109, 49):
+    elif compare_pixels_strictly(place[1770, 664], (145, 109, 49), .95):
         return 7
-    elif place[1770, 737] == (145, 109, 49):
+    elif compare_pixels_strictly(place[1770, 737], (145, 109, 49), .95):
         return 8
     else:
         return 8
