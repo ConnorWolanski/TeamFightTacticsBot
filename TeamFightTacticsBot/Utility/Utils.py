@@ -10,9 +10,7 @@ from TeamFightTacticsBot.Structures.Point import Point
 
 # Constants
 from TeamFightTacticsBot.Utility.Champions import Champions
-from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_VARIANCE_ALLOWED
-from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_ACCURACY
-from TeamFightTacticsBot.Utility.Constants import USER_32
+from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_VARIANCE_ALLOWED, PERCENTAGE_ACCURACY, USER_32
 
 # Global Variable imports
 import TeamFightTacticsBot.Utility.Constants as Constants
@@ -20,12 +18,11 @@ import TeamFightTacticsBot.Utility.Constants as Constants
 
 def get_items_carasel(screen):
     carasel = screen.crop((300, 195, 1500, 850))
-    carasel.show()
     locations = find_health_bar_locations(carasel, 10)
     items = []
     for loc in locations:
-        tempimage = carasel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
-        items.append(image_to_item(tempimage))
+        temp_image = carasel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
+        items.append(image_to_item(temp_image))
     return items
 
 
@@ -39,95 +36,10 @@ def image_to_item(image):
 
 
 def get_item_from_list_index(count):
-    if count == 0:
-        return "BF Sword"
-    if count == 1:
-        return "Botrk"
-    if count == 2:
-        return "BT"
-    if count == 3:
-        return "Chain Vest"
-    if count == 4:
-        return "Cloak"
-    if count == 5:
-        return "Demon"
-    if count == 6:
-        return "Disarm"
-    if count == 7:
-        return "Dragon Claw"
-    if count == 8:
-        return "Extra Guy"
-    if count == 9:
-        return "Frozen Heart"
-    if count == 10:
-        return "Frozen Malet"
-    if count == 11:
-        return "Giants Belt"
-    if count == 12:
-        return "GA"
-    if count == 13:
-        return "Guinsoos"
-    if count == 14:
-        return "Gunblade"
-    if count == 15:
-        return "hush"
-    if count == 16:
-        return "IE"
-    if count == 17:
-        return "IonicSpark"
-    if count == 18:
-        return "Knights Vow"
-    if count == 19:
-        return "Large Rod"
-    if count == 20:
-        return "Locket"
-    if count == 21:
-        return "Ludens"
-    if count == 22:
-        return "Morrelos"
-    if count == 23:
-        return "PD"
-    if count == 24:
-        return "Rabadons"
-    if count == 25:
-        return "RFC"
-    if count == 26:
-        return "Recurve"
-    if count == 27:
-        return "Redbuff"
-    if count == 28:
-        return "Redemption"
-    if count == 39:
-        return "Ruunans"
-    if count == 30:
-        return "Seraphs"
-    if count == 31:
-        return "Shojins"
-    if count == 32:
-        return "Shrink"
-    if count == 33:
-        return "Spatula"
-    if count == 34:
-        return "Static Shiv"
-    if count == 35:
-        return "Sword of the divine"
-    if count == 36:
-        return "Tear"
-    if count == 37:
-        return "Thornmail"
-    if count == 38:
-        return "Titanic"
-    if count == 39:
-        return "Warmogs"
-    if count == 40:
-        return "Yhommus"
-    if count == 41:
-        return "Yumi"
-    if count == 42:
-        return "Zekes"
-    if count == 43:
-        return "Zephyr"
-    return "item not found"
+    if count < len(Constants.ITEM_NAMES_LIST):
+        return Constants.ITEM_NAMES_LIST[count]
+    else:
+        return 'Could not parse item'
 
 
 def check_health_bar_location(image, x, y):
@@ -157,13 +69,11 @@ def find_health_bar_locations(image, number_of_bars):
 
 def scan_shop():
     screen = Image.open("Test1.png")
-    shop_slots = []
-    shop_slots.append(screen.crop((479, 927, 674, 1073)))
-    shop_slots.append(screen.crop((680, 927, 875, 1073)))
-    shop_slots.append(screen.crop((881, 927, 1076, 1073)))
-    shop_slots.append(screen.crop((1083, 927, 1278, 1073)))
-    shop_slots.append(screen.crop((1284, 927, 1479, 1073)))
-    return shop_slots
+    return [screen.crop((479, 927, 674, 1073)),
+            screen.crop((680, 927, 875, 1073)),
+            screen.crop((881, 927, 1076, 1073)),
+            screen.crop((1083, 927, 1278, 1073)),
+            screen.crop((1284, 927, 1479, 1073))]
 
 
 def shop_to_champion():
@@ -205,15 +115,15 @@ def get_cost(pixel):
 
 def search_by_cost(cost):
     if cost is 1:
-        return 0
+        return Constants.CHARACTER_TIER_INDEXES[0]
     elif cost is 2:
-        return 12
+        return Constants.CHARACTER_TIER_INDEXES[1]
     elif cost is 3:
-        return 24
+        return Constants.CHARACTER_TIER_INDEXES[2]
     elif cost is 4:
-        return 36
+        return Constants.CHARACTER_TIER_INDEXES[3]
     elif cost is 5:
-        return 45
+        return Constants.CHARACTER_TIER_INDEXES[4]
     return 0
 
 
@@ -437,8 +347,8 @@ def get_player_names(screen, place):
 
 def string_from_image(image):
     image = make_image_readable(image)
-    name = get_text.image_to_string(image, lang='eng',
-                                    config="-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+    config_args = "-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    name = get_text.image_to_string(image, lang='eng', config=config_args)
     return name
 
 
