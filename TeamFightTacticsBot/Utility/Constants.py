@@ -7,7 +7,7 @@ from TeamFightTacticsBot.Structures.Point import Point
 # Program wide variables
 # Final
 PERCENTAGE_ACCURACY = .8
-PERCENTAGE_VARIANCE_ALLOWED = .1
+VARIANCE_THRESHOLD = .9
 USER_32 = ctypes.windll.user32
 MAIN_FILE_LOCATION = ''
 
