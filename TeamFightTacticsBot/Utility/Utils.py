@@ -18,6 +18,143 @@ from TeamFightTacticsBot.Utility.Constants import USER_32
 import TeamFightTacticsBot.Utility.Constants as Constants
 
 
+def get_items_carasel(screen):
+    carasel = screen.crop((300, 195, 1500, 850))
+    carasel.show()
+    locations = find_health_bar_locations(carasel, 10)
+    items = []
+    for loc in locations:
+        tempimage = carasel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
+        items.append(image_to_item(tempimage))
+    return items
+
+
+def image_to_item(image):
+    count = 0
+    while count < len(Constants.ITEM_IMAGE_LIST):
+        if compare_images_strictly(image, Constants.ITEM_IMAGE_LIST[count], .90):
+            break
+        count += 1
+    return get_item_from_list_index(count)
+
+
+def get_item_from_list_index(count):
+    if count == 0:
+        return "BF Sword"
+    if count == 1:
+        return "Botrk"
+    if count == 2:
+        return "BT"
+    if count == 3:
+        return "Chain Vest"
+    if count == 4:
+        return "Cloak"
+    if count == 5:
+        return "Demon"
+    if count == 6:
+        return "Disarm"
+    if count == 7:
+        return "Dragon Claw"
+    if count == 8:
+        return "Extra Guy"
+    if count == 9:
+        return "Frozen Heart"
+    if count == 10:
+        return "Frozen Malet"
+    if count == 11:
+        return "Giants Belt"
+    if count == 12:
+        return "GA"
+    if count == 13:
+        return "Guinsoos"
+    if count == 14:
+        return "Gunblade"
+    if count == 15:
+        return "hush"
+    if count == 16:
+        return "IE"
+    if count == 17:
+        return "IonicSpark"
+    if count == 18:
+        return "Knights Vow"
+    if count == 19:
+        return "Large Rod"
+    if count == 20:
+        return "Locket"
+    if count == 21:
+        return "Ludens"
+    if count == 22:
+        return "Morrelos"
+    if count == 23:
+        return "PD"
+    if count == 24:
+        return "Rabadons"
+    if count == 25:
+        return "RFC"
+    if count == 26:
+        return "Recurve"
+    if count == 27:
+        return "Redbuff"
+    if count == 28:
+        return "Redemption"
+    if count == 39:
+        return "Ruunans"
+    if count == 30:
+        return "Seraphs"
+    if count == 31:
+        return "Shojins"
+    if count == 32:
+        return "Shrink"
+    if count == 33:
+        return "Spatula"
+    if count == 34:
+        return "Static Shiv"
+    if count == 35:
+        return "Sword of the divine"
+    if count == 36:
+        return "Tear"
+    if count == 37:
+        return "Thornmail"
+    if count == 38:
+        return "Titanic"
+    if count == 39:
+        return "Warmogs"
+    if count == 40:
+        return "Yhommus"
+    if count == 41:
+        return "Yumi"
+    if count == 42:
+        return "Zekes"
+    if count == 43:
+        return "Zephyr"
+    return "item not found"
+
+
+def check_health_bar_location(image, x, y):
+    # checks only if one star need to add or for two and three stars later and for enemy bar
+    im = image.load()
+    if compare_pixels_strictly(im[x, y], (162, 112, 55), .95):
+        if compare_pixels_strictly(im[x+1, y], (8, 20, 33), .95):
+            if compare_pixels_strictly(im[x+2, y], (2, 18, 35), .95):
+                if compare_pixels_strictly(im[x+3, y], (81, 162, 230), .95):
+                    if compare_pixels_strictly(im[x, y-1], (0, 20, 33), .95):
+                        return True
+    return False
+
+
+def find_health_bar_locations(image, number_of_bars):
+    y_location = 0
+    count = 0
+    locations = []
+    while count < number_of_bars and y_location < image.size[1]:
+        for x_location in range(image.size[0]):
+            if check_health_bar_location(image, x_location, y_location):
+                locations.append((x_location, y_location))
+                count += 1
+        y_location += 1
+    return locations
+
+
 def scan_shop():
     screen = Image.open("Test1.png")
     shop_slots = []

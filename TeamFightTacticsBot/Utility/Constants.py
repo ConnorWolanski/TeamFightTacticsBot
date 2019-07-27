@@ -51,7 +51,7 @@ def load_champion_card_images():
 
 def load_item_images():
     item_image_list = []
-    item_image_folder = MAIN_FILE_LOCATION + '/Resources/Final/Items/'
+    item_image_folder = MAIN_FILE_LOCATION + '/Resources/Final/AppliedItems/'
     for item_image in glob.glob(item_image_folder + "/*.png"):
         image = Image.open(item_image)
         item_image_list.append(image)
