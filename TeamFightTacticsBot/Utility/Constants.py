@@ -2,6 +2,7 @@ import ctypes
 import glob
 from PIL import Image
 import os
+from TeamFightTacticsBot.Structures.Point import Point
 
 # Program wide variables
 # Final
@@ -69,8 +70,9 @@ def load_item_images():
 
 
 def get_colors():
-    return [(CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[0]].load()[170, 140]),
-            CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[1]].load()[170, 140],
-            CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[2]].load()[170, 140],
-            CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[3]].load()[170, 140],
-            CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[4]].load()[170, 140]]
+    cordinate = Point(170, 140)
+    return [(CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[0]].load()[cordinate.x, cordinate.y]),
+            CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[1]].load()[cordinate.x, cordinate.y],
+            CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[2]].load()[cordinate.x, cordinate.y],
+            CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[3]].load()[cordinate.x, cordinate.y],
+            CHARACTER_IMAGE_LIST[CHARACTER_TIER_INDEXES[4]].load()[cordinate.x, cordinate.y]]
