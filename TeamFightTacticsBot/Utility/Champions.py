@@ -60,3 +60,7 @@ class Champions(Enum):
     MISS_FORTUNE = Champion("Miss Fortune", 5, 650, .85, 75, 3, 20, 20)
     SWAIN = Champion("Swain", 5, 850, .65, 65, 2, 25, 20)
     YASUO = Champion("Yasuo", 5, 700, 1, 65, 1, 35, 25)
+
+
+def get_list_length():
+    return len(Champions.__members__)
