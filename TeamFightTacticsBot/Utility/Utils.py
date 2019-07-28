@@ -17,6 +17,25 @@ from TeamFightTacticsBot.Utility.Constants import VARIANCE_THRESHOLD, PERCENTAGE
 import TeamFightTacticsBot.Utility.Constants as Constants
 
 
+def find_carousel_starting_location(tested):
+    tested = tested.crop((250, 175, 1600, 1080))
+    return find_pixels_of_interest_for_starting_circle(tested)
+
+
+def find_pixels_of_interest_for_starting_circle(tested_area):
+    to_be_averaged = find_points_of_interest_by_color(tested_area, (254, 254, 145), 50)
+
+    x, y = 0, 0
+    for point in to_be_averaged:
+        x += point.x
+        y += point.y
+
+    x /= len(to_be_averaged)
+    y /= len(to_be_averaged)
+
+    return Point(int(x), int(y))
+
+
 def get_item_box_location(tested):
     tested = tested.crop((300, 180, 1550, 800))
     # Not sure if this method will work for item boxes
@@ -25,6 +44,10 @@ def get_item_box_location(tested):
 
 
 def find_pixels_of_interest_for_item_boxes(tested_area):
+    return find_points_of_interest_by_color(tested_area, (162, 254, 254), 25)
+
+
+def find_points_of_interest_by_color(tested_area, master_color_tuple, cooldown_radius):
     interested_locations = []
     # 162, 254, 254
     width, height = tested_area.size
@@ -33,7 +56,7 @@ def find_pixels_of_interest_for_item_boxes(tested_area):
 
     for y in range(height):
         for x in range(width):
-            if not is_a_close_box_color(tested_pixels[x, y]):
+            if not is_a_close_color(tested_pixels[x, y], master_color_tuple):
                 data.append((0, 0, 0))
             else:
                 data.append((tested_pixels[x, y][0], tested_pixels[x, y][1], tested_pixels[x, y][2]))
@@ -51,7 +74,7 @@ def find_pixels_of_interest_for_item_boxes(tested_area):
                 continue
 
             # Check if close to already existing POI
-            if is_in_radius(Point(x, y), interested_locations):
+            if is_in_radius(Point(x, y), interested_locations, cooldown_radius):
                 continue
 
             if not pixel_is_black(image_pixels[x, y]):
@@ -59,7 +82,7 @@ def find_pixels_of_interest_for_item_boxes(tested_area):
                 surrounding = [image_pixels[x, y-1], image_pixels[x-1, y],
                                image_pixels[x+1, y], image_pixels[x, y+1]]
                 for surround in surrounding:
-                    if is_a_close_box_color(surround):
+                    if is_a_close_color(surround, master_color_tuple):
                         count += 1
 
                 if count > 2:
@@ -68,10 +91,10 @@ def find_pixels_of_interest_for_item_boxes(tested_area):
     return interested_locations
 
 
-def is_in_radius(point, point_list):
+def is_in_radius(point, point_list, cooldown_radius):
     for p in point_list:
         distance = math.sqrt(math.pow((p.x - point.x), 2) + math.pow(p.y - point.y, 2))
-        if distance < 25:
+        if distance < cooldown_radius:
             return True
 
     return False
@@ -81,31 +104,32 @@ def pixel_is_black(pixel):
     return pixel == (0, 0, 0)
 
 
-def is_a_close_box_color(pixel):
-    # 162, 254, 254
+def is_a_close_color(pixel, master_tuple):
+    # For item box: 162, 254, 254
+
+    acceptance = 5
 
     # Red Component
-    if abs(pixel[0] - 162) > 5:
+    if abs(pixel[0] - master_tuple[0]) > acceptance:
         return False
 
     # Green Component
-    if abs(pixel[1] - 250) > 5:
+    if abs(pixel[1] - master_tuple[1]) > acceptance:
         return False
 
     # Blue Component
-    if abs(pixel[2] - 250) > 5:
+    if abs(pixel[2] - master_tuple[2]) > acceptance:
         return False
 
     return True
 
 
-
-def get_items_carasel(screen):
-    carasel = screen.crop((300, 195, 1500, 850))
-    locations = find_health_bar_locations(carasel, 10)
+def get_items_carousel(screen):
+    carousel = screen.crop((300, 195, 1500, 850))
+    locations = find_health_bar_locations(carousel, 10)
     items = []
     for loc in locations:
-        temp_image = carasel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
+        temp_image = carousel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
         items.append(image_to_item(temp_image))
     return items
 
