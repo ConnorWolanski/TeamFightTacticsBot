@@ -10,7 +10,7 @@ import math
 from TeamFightTacticsBot.Structures.Point import Point
 
 # Constants
-from TeamFightTacticsBot.Utility.Champions import Champions
+from TeamFightTacticsBot.Enumerators.Champions import Champions
 from TeamFightTacticsBot.Utility.Constants import VARIANCE_THRESHOLD, PERCENTAGE_ACCURACY, USER_32
 
 # Global Variable imports
