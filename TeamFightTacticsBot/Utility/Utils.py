@@ -4,16 +4,100 @@ import pytesseract as get_text
 import pyautogui as auto_gui
 import pyscreenshot as image_grab
 from PIL import Image, ImageOps
+import math
 
 # Objects
 from TeamFightTacticsBot.Structures.Point import Point
 
 # Constants
 from TeamFightTacticsBot.Utility.Champions import Champions
-from TeamFightTacticsBot.Utility.Constants import PERCENTAGE_VARIANCE_ALLOWED, PERCENTAGE_ACCURACY, USER_32
+from TeamFightTacticsBot.Utility.Constants import VARIANCE_THRESHOLD, PERCENTAGE_ACCURACY, USER_32
 
 # Global Variable imports
 import TeamFightTacticsBot.Utility.Constants as Constants
+
+
+def get_item_box_location(tested):
+    tested = tested.crop((300, 180, 1550, 800))
+    # Not sure if this method will work for item boxes
+    # return compare_images_and_get_location_strictly(tested, item_box, .99)
+    return find_pixels_of_interest_for_item_boxes(tested)
+
+
+def find_pixels_of_interest_for_item_boxes(tested_area):
+    interested_locations = []
+    # 162, 254, 254
+    width, height = tested_area.size
+    tested_pixels = tested_area.load()
+    data = []
+
+    for y in range(height):
+        for x in range(width):
+            if not is_a_close_box_color(tested_pixels[x, y]):
+                data.append((0, 0, 0))
+            else:
+                data.append((tested_pixels[x, y][0], tested_pixels[x, y][1], tested_pixels[x, y][2]))
+
+    image = Image.new('RGB', (width, height))
+    image.putdata(data)
+
+    image_pixels = image.load()
+    width, height = image.size
+
+    for y in range(height):
+        for x in range(width):
+            # Stay away from out of bounds errors
+            if x == 0 or x == width-1 or y == 0 or y == height-1:
+                continue
+
+            # Check if close to already existing POI
+            if is_in_radius(Point(x, y), interested_locations):
+                continue
+
+            if not pixel_is_black(image_pixels[x, y]):
+                count = 0
+                surrounding = [image_pixels[x, y-1], image_pixels[x-1, y],
+                               image_pixels[x+1, y], image_pixels[x, y+1]]
+                for surround in surrounding:
+                    if is_a_close_box_color(surround):
+                        count += 1
+
+                if count > 2:
+                    interested_locations.append(Point(x, y))
+
+    return interested_locations
+
+
+def is_in_radius(point, point_list):
+    for p in point_list:
+        distance = math.sqrt(math.pow((p.x - point.x), 2) + math.pow(p.y - point.y, 2))
+        if distance < 25:
+            return True
+
+    return False
+
+
+def pixel_is_black(pixel):
+    return pixel == (0, 0, 0)
+
+
+def is_a_close_box_color(pixel):
+    # 162, 254, 254
+
+    # Red Component
+    if abs(pixel[0] - 162) > 5:
+        return False
+
+    # Green Component
+    if abs(pixel[1] - 250) > 5:
+        return False
+
+    # Blue Component
+    if abs(pixel[2] - 250) > 5:
+        return False
+
+    return True
+
 
 
 def get_items_carasel(screen):
@@ -475,25 +559,32 @@ def check_queue(point):
 
 def find_play_button():
     get_screen()
-    screen_image = Image.open(get_analyzable_relative_path() + "screen.png")
-    screen = screen_image.load()
-
+    screen = Image.open(get_analyzable_relative_path() + "screen.png")
     play_button_image = Image.open(get_button_relative_path() + "play_button.PNG")
-    play_button_pixels = play_button_image.convert('RGB')
-    play_button_pixels = play_button_pixels.load()
 
-    for x in range(get_screensize()[0]):
-        for y in range(get_screensize()[1]):
-            if compare_pixels_strictly(screen[x, y], play_button_pixels[0, 0], 25):
-                cropped_image = screen_image.crop((x, y, x + 154, y + 38))
-                if compare_images(cropped_image, play_button_image):
+    return compare_images_and_get_location_strictly(screen, play_button_image, 25)
+
+
+def compare_images_and_get_location_strictly(tested, master, variance):
+    tested_pixels = tested.load()
+    master_pixels = master.load()
+
+    index = 0
+    for x in range(tested.size[0]):
+        print("still going... at " + str(index))
+        index += 1
+        for y in range(tested.size[1]):
+            if compare_pixels_strictly(tested_pixels[x, y], master_pixels[0, 0], variance):
+                cropped_image = tested.crop((x, y, x + master.size[0], y + master.size[1]))
+                if compare_images(cropped_image, master):
+                    cropped_image.show()
                     return Point(x, y)
 
     return None
 
 
 def compare_images(tested, master):
-    return compare_pixels_strictly(tested, master, PERCENTAGE_ACCURACY)
+    return compare_images_strictly(tested, master, PERCENTAGE_ACCURACY)
 
 
 def compare_images_strictly(tested, master, variance_allowed):
@@ -516,22 +607,38 @@ def compare_images_strictly(tested, master, variance_allowed):
 
 
 def compare_pixels(tested, master):
-    variance_allowed = (255 * PERCENTAGE_VARIANCE_ALLOWED) * 3
-
-    return compare_pixels_strictly(tested, master, variance_allowed)
+    return compare_pixels_strictly(tested, master, VARIANCE_THRESHOLD)
 
 
-def compare_pixels_strictly(tested, master, variance_allowed):
+def compare_pixels_strictly(tested, master, variance_threshold):
     # Each input is a pixel with array values as such: [R, G, B, A]
+    # Get the limit of variance by RGB values
+    variance_allowed = (255 - (255 * variance_threshold)) * 3
 
     # Variance for red component
-    variance = abs(master[0] - tested[0])
+    variance = compare_pixels_red(tested, master)
     # Variance for green component
-    variance += abs(master[1] - tested[1])
+    variance += compare_pixels_green(tested, master)
     # Variance for blue component
-    variance += abs(master[2] - tested[2])
+    variance += compare_pixels_blue(tested, master)
 
     return variance < variance_allowed
+
+
+def compare_pixels_red(tested, master):
+    return abs(master[0] - tested[0])
+
+
+def compare_pixels_green(tested, master):
+    return abs(master[1] - tested[1])
+
+
+def compare_pixels_blue(tested, master):
+    return abs(master[2] - tested[2])
+
+
+def get_misc_relative_path():
+    return Constants.MAIN_FILE_LOCATION + "/Resources/Final/Misc/"
 
 
 def get_button_relative_path():
