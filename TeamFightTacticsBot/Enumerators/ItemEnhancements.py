@@ -10,3 +10,7 @@ class ItemEnhancements(Enum):
     MAGIC_RESIST = 20
     HEALTH = 200
     SPATULA = 0
+
+
+def get_list_length():
+    return len(ItemEnhancements.__members__)
