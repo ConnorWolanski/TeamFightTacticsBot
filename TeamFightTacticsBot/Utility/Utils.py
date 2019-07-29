@@ -127,6 +127,11 @@ def is_a_close_color(pixel, master_tuple):
 def get_items_carousel(screen):
     carousel = screen.crop((300, 195, 1500, 850))
     locations = find_health_bar_locations(carousel, 10)
+    
+    
+def get_items_carousel(screen):
+    carousel = screen.crop((300, 195, 1500, 850))
+    locations = find_health_bar_locations(carousel, 10)
     items = []
     for loc in locations:
         temp_image = carousel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
@@ -175,8 +180,43 @@ def find_health_bar_locations(image, number_of_bars):
     return locations
 
 
-def scan_shop():
-    screen = Image.open("Test1.png")
+def buy_champions(screen, stage, board):
+    gold = get_gold(screen)
+    champion_list = shop_to_champion(screen)
+    champion_priority = []
+    # champions = get_champions_owned(board)
+    total_cost = 0
+    for champion in champion_list:
+        print(str(champion))
+        total_cost += champion.cost
+    print("Total Cost: " + str(total_cost))
+    print("Gold: " + str(gold))
+    # if total_cost < gold:
+        # buy((1, 2, 3, 4, 5))
+    # else:
+        # if stage is 1:
+
+        # elif stage is 2:
+
+        # else:
+
+
+#def buy(slots):
+
+def get_champions_owned(board):
+    champions = []
+    for row in board.board_slots:
+        for col in row:
+            if col is None:
+                continue
+            else:
+                champions.append(col)
+    for slot in board.bench_slots:
+        champions.append(slot)
+    return champions
+
+
+def crop_shop(screen):
     return [screen.crop((479, 927, 674, 1073)),
             screen.crop((680, 927, 875, 1073)),
             screen.crop((881, 927, 1076, 1073)),
@@ -184,9 +224,9 @@ def scan_shop():
             screen.crop((1284, 927, 1479, 1073))]
 
 
-def shop_to_champion():
+def shop_to_champion(screen):
     champion_slots = []
-    shop_slots = scan_shop()
+    shop_slots = crop_shop(screen)
     for slot in shop_slots:
         value = image_to_champion(slot)
         champion_slots.append(value)
@@ -199,13 +239,16 @@ def image_to_champion(champion_image):
     cost = get_cost(champion_image_pixels[170, 140])
     index_start = search_by_cost(cost)
     is_found = False
-    while (not is_found) and (index_start <= len(Constants.CHARACTER_IMAGE_LIST)):
-        is_found = compare_images_strictly(champion_image, Constants.CHARACTER_IMAGE_LIST[index_start], .9)
+    while (not is_found) and (index_start < len(Constants.CHARACTER_IMAGE_LIST)):
+        is_found = compare_images_exact(champion_image, Constants.CHARACTER_IMAGE_LIST[index_start])
         if is_found:
             break
         index_start += 1
 
-    return get_champion_from_list_index(index_start)
+    if is_found:
+        return get_champion_from_list_index(index_start)
+    else:
+        return None
 
 
 def get_cost(pixel):
@@ -628,6 +671,19 @@ def compare_images_strictly(tested, master, variance_allowed):
                 pixels_accepted += 1
 
     return False
+
+
+def compare_images_exact(tested, master):
+    search = tested.load()
+    search_from = master.load()
+    width, height = master.size
+    for x in range(width):
+        for y in range(height):
+            if compare_pixels(search[x,y], search_from[x,y]):
+                continue
+            else:
+                return False
+    return True
 
 
 def compare_pixels(tested, master):
