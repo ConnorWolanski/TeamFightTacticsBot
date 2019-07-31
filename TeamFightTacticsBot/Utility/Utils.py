@@ -15,6 +15,7 @@ from TeamFightTacticsBot.Utility.Constants import VARIANCE_THRESHOLD, PERCENTAGE
 
 # Global Variable imports
 import TeamFightTacticsBot.Utility.Constants as Constants
+import TeamFightTacticsBot.Utility.GameConstants as GameConstants
 
 
 def find_carousel_starting_location(tested):
@@ -123,15 +124,10 @@ def is_a_close_color(pixel, master_tuple):
 
     return True
 
-
-def get_items_carousel(screen):
-    carousel = screen.crop((300, 195, 1500, 850))
-    locations = find_health_bar_locations(carousel, 9)
-    
     
 def get_items_carousel(screen):
     carousel = screen.crop((300, 195, 1500, 850))
-    locations = find_health_bar_locations(carousel, 9)
+    locations = find_health_bar_locations(carousel, GameConstants.CAROUSEL_CHAMPION_COUNT)
     items = []
     for loc in locations:
         temp_image = carousel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
@@ -202,15 +198,15 @@ def buy_champions(screen, stage, board):
 def buy(slots):
     for slot in slots:
         if slot is 1:
-            click(500, 970)
+            click(Point(500, 970))
         elif slot is 2:
-            click(730, 970)
+            click(Point(730, 970))
         elif slot is 3:
-            click(920, 970)
+            click(Point(920, 970))
         elif slot is 4:
-            click(1150, 970)
+            click(Point(1150, 970))
         elif slot is 5:
-            click(1320, 970)
+            click(Point(1320, 970))
         else:
             print("Invalid slot")
     print("Bought slots")
@@ -226,11 +222,11 @@ def get_first_empty_bench_slot(board):
 
 
 def get_empty_bench_count(board):
-    index = 0
+    occupied = 0
     for slot in board.bench_slots:
-        if slot is None:
-            index += 1
-    return index
+        if slot is not None:
+            occupied += 1
+    return GameConstants.BENCH_SLOTS - occupied
 
 
 def get_champions_owned(board):
@@ -611,19 +607,19 @@ def click_through_to_game(point):
     y = point.y
 
     # This clicks on the play button
-    click(x + 55, y + 10)
+    click(Point(x + 55, y + 10))
 
     # This clicks on the Team Fight Tactics part of game modes
     time.sleep(.5)
-    click(x + 840, y + 250)
+    click(Point(x + 840, y + 250))
 
     # This clicks on the confirm for the game mode
     time.sleep(.5)
-    click(x + 500, y + 666)
+    click(Point(x + 500, y + 666))
 
     # This clicks on the "Find Match" button once in a TFT lobby.
     time.sleep(3)
-    click(x + 500, y + 666)
+    click(Point(x + 500, y + 666))
 
     # This checks if a queue is pops and then clicks on (Accept!/Decline)
     check_queue(point)
@@ -648,10 +644,10 @@ def check_queue(point):
         time.sleep(.5)
 
     # Accept queue
-    # click(x + 600, y + 540)
+    # click(Point(x + 600, y + 540))
 
     # Decline queue
-    click(x + 600, y + 600)
+    click(Point(x + 600, y + 600))
 
 
 def find_play_button():
@@ -709,7 +705,7 @@ def compare_images_exact(tested, master):
     width, height = master.size
     for x in range(width):
         for y in range(height):
-            if compare_pixels(search[x,y], search_from[x,y]):
+            if compare_pixels(search[x, y], search_from[x, y]):
                 continue
             else:
                 return False
@@ -772,11 +768,10 @@ def get_screensize():
     return USER_32.GetSystemMetrics(0), USER_32.GetSystemMetrics(1)
 
 
-def click(x, y):
-    auto_gui.click(x, y)
-    print("Clicked at (" + str(x) + ", " + str(y) + ")")
+def click(point):
+    auto_gui.click(point.x, point.y)
 
 
-def click_and_drag(xinitial, yinitial, xpost, ypost):
-    auto_gui.moveTo(xinitial, yinitial)
-    auto_gui.dragTo(xpost, ypost, button='left')
+def click_and_drag(initial_point, final_point):
+    auto_gui.moveTo(initial_point.x, initial_point.y)
+    auto_gui.dragTo(final_point.x, final_point.y, button='left')

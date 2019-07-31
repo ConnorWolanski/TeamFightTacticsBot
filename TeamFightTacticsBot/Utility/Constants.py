@@ -3,6 +3,7 @@ import glob
 from PIL import Image
 import os
 from TeamFightTacticsBot.Structures.Point import Point
+from TeamFightTacticsBot.Utility.GameConstants import variables_initialize as game_constants
 
 # Program wide variables
 # Final
@@ -39,6 +40,7 @@ def variables_initialize(main_file):
     in_game = False
     global screensize
     screensize = USER_32.GetSystemMetrics(0), USER_32.GetSystemMetrics(1)
+    game_constants()
 
 
 def load_champion_card_images():

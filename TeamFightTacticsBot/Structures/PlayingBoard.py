@@ -1,11 +1,14 @@
+import TeamFightTacticsBot.Utility.GameConstants as GameConstants
+
+
 class PlayingBoard:
     def __init__(self, name):
         self.name = name
 
-        w, h = 7, 3
+        w, h = GameConstants.BOARD_SIZE_WIDTH, GameConstants.BOARD_SIZE_HEIGHT
         self.board_slots = [[None for x in range(w)] for y in range(h)]
 
-        bench_space = 9
+        bench_space = GameConstants.BENCH_SLOTS
         self.bench_slots = [None for x in range(bench_space)]
 
     def __str__(self):
