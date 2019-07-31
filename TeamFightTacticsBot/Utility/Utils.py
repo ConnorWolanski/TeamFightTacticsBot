@@ -126,12 +126,12 @@ def is_a_close_color(pixel, master_tuple):
 
 def get_items_carousel(screen):
     carousel = screen.crop((300, 195, 1500, 850))
-    locations = find_health_bar_locations(carousel, 10)
+    locations = find_health_bar_locations(carousel, 9)
     
     
 def get_items_carousel(screen):
     carousel = screen.crop((300, 195, 1500, 850))
-    locations = find_health_bar_locations(carousel, 10)
+    locations = find_health_bar_locations(carousel, 9)
     items = []
     for loc in locations:
         temp_image = carousel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
@@ -191,17 +191,47 @@ def buy_champions(screen, stage, board):
         total_cost += champion.cost
     print("Total Cost: " + str(total_cost))
     print("Gold: " + str(gold))
-    # if total_cost < gold:
-        # buy((1, 2, 3, 4, 5))
+    if stage is 1:
+        if total_cost < gold:
+            buy((1, 2, 3, 4, 5))
+    # elif stage is 2:
+
     # else:
-        # if stage is 1:
-
-        # elif stage is 2:
-
-        # else:
 
 
-#def buy(slots):
+def buy(slots):
+    for slot in slots:
+        if slot is 1:
+            click(500, 970)
+        elif slot is 2:
+            click(730, 970)
+        elif slot is 3:
+            click(920, 970)
+        elif slot is 4:
+            click(1150, 970)
+        elif slot is 5:
+            click(1320, 970)
+        else:
+            print("Invalid slot")
+    print("Bought slots")
+
+
+def get_first_empty_bench_slot(board):
+    index = 0
+    for slot in board.bench_slots:
+        if slot is None:
+            return index
+        index += 1
+    return None
+
+
+def get_empty_bench_count(board):
+    index = 0
+    for slot in board.bench_slots:
+        if slot is None:
+            index += 1
+    return index
+
 
 def get_champions_owned(board):
     champions = []
@@ -745,3 +775,8 @@ def get_screensize():
 def click(x, y):
     auto_gui.click(x, y)
     print("Clicked at (" + str(x) + ", " + str(y) + ")")
+
+
+def click_and_drag(xinitial, yinitial, xpost, ypost):
+    auto_gui.moveTo(xinitial, yinitial)
+    auto_gui.dragTo(xpost, ypost, button='left')

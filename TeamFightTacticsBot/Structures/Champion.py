@@ -21,6 +21,6 @@ class Champion:
                ", Armor: " + str(self.armor) + \
                ", Magic Resist: " + str(self.magic_resist)
         for synergy in self.synergies:
-            string == string + ", Synergy: " + str(synergy)
+            string = string + ", Synergy: " + str(synergy.value)
         string += "]"
         return string
