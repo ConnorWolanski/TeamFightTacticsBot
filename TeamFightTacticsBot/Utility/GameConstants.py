@@ -8,3 +8,6 @@ STREAK_BONUS_GOLD_THRESHOLD = [2, 4, 7]
 def variables_initialize():
     global CAROUSEL_CHAMPION_COUNT
     global BENCH_SLOTS
+    global BOARD_SIZE_WIDTH
+    global BOARD_SIZE_HEIGHT
+    global STREAK_BONUS_GOLD_THRESHOLD
