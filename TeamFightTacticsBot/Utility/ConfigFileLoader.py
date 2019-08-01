@@ -1,5 +1,7 @@
 import configparser as config_parser_master
+import fileinput
 from TeamFightTacticsBot.Structures.LearnedMetaData import LearnedMetaData
+import TeamFightTacticsBot.Utility.Constants as Constants
 
 # Global Variables
 STAGE_LEVEL_ASSOCIATIONS = {}
@@ -66,3 +68,15 @@ def get_rating_and_games_played(string_input):
     rating = int(string_input[0])
     games_played = int(string_input[1])
     return LearnedMetaData(rating, games_played)
+
+
+def edit_rating_in_file(stage, string_input, new_value):
+    with open(get_config_path() + "ChampionLearnedRating.cfg", 'r') as file:
+        filedata = file.read()
+    filedata = filedata.replace(string_input, new_value)
+    with open(get_config_path() + "ChampionLearnedRating.cfg", 'w') as file:
+        file.write(filedata)
+
+
+def get_config_path():
+    return Constants.MAIN_FILE_LOCATION + "/Resources/Config/"

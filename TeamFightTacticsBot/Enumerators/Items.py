@@ -8,9 +8,9 @@ class Items(Enum):
     BF_SWORD = Item("BFSword", None, None, ItemEnhancements.ATTACK_DAMAGE)
     RECURVE_BOW = Item("RecurveBow", None, None, ItemEnhancements.ATTACK_SPEED)
     NEEDLESSLY_LARGE_ROD = Item("NeedlesslyLargeRod", None, None, ItemEnhancements.ABILITY_POWER)
-    TEAR_OF_THE_GODDESS = Item("TearOfTheGoddess", None, None, ItemEnhancements.MANA)
+    TEAR_OF_THE_GODDESS = Item("TearOfTheGoddess", None, None, ItemEnhancements.STARTING_MANA)
     CHAIN_VEST = Item("ChainVest", None, None, ItemEnhancements.ARMOR)
-    NEGATRON_CLOAK = Item("NegatronCloak", None, None, ItemEnhancements.MAGICRESIST)
+    NEGATRON_CLOAK = Item("NegatronCloak", None, None, ItemEnhancements.MAGIC_RESIST)
     GIANTS_BELT = Item("GiantsBelt", None, None, ItemEnhancements.HEALTH)
     SPATULA = Item("Spatula", None, None, ItemEnhancements.SPATULA)
     # BF Sword Builds

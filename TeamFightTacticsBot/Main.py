@@ -21,7 +21,7 @@ def start():
         Utils.initialize_resources(os.path.dirname(__file__))
 
         # buy_champions(Image.open("StoreTest.png"), None, None)
-
+        ConfigFileLoader.edit_rating_in_file("Darius = 50:0", "Darius = 51:0")
         # print(str(get_items_carasel(test)))
 
 
