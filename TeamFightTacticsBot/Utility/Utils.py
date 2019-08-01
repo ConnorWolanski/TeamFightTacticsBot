@@ -21,21 +21,28 @@ import TeamFightTacticsBot.Utility.ConfigFileLoader as ConfigFileLoader
 
 
 def get_boost_name(boost_name, level):
+    returned = ""
+
     for synergy in Synergies:
-        if boost_name.lower() == synergy.value.name.lower():
-            thresholds = synergy.value.boost_character_thresholds
-            if isinstance(thresholds, int):
-                # Just one level
-                return boost_name + "_1"
+        if boost_name.lower() != synergy.value.name.lower():
+            continue
+
+        thresholds = synergy.value.boost_character_thresholds
+        if isinstance(thresholds, int):
+            # Just one level
+            returned = boost_name + "_1"
+        else:
+            if level <= 0:
+                returned = boost_name + "_" + str(thresholds[0])
             else:
-                if level <= 0:
-                    return boost_name + "_1"
                 # Multiple levels
                 max_levels = len(thresholds)
                 if level > max_levels:
-                    return boost_name + "_" + str(max_levels)
+                    returned = boost_name + "_" + str(thresholds[max_levels - 1])
                 else:
-                    return boost_name + "_" + str(level)
+                    returned = boost_name + "_" + str(thresholds[level - 1])
+
+    return returned.upper()
 
 
 def find_carousel_starting_location(tested):

@@ -20,7 +20,6 @@ def start():
 
     if debugging:
         Utils.initialize_resources(os.path.dirname(__file__))
-        ConfigFileLoader.write_config_file()
 
         # buy_champions(Image.open("StoreTest.png"), None, None)
 
