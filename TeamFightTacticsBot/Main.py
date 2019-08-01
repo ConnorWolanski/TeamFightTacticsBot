@@ -1,8 +1,9 @@
 from TeamFightTacticsBot.Utility.BotController import bot_initialize
 import TeamFightTacticsBot.Utility.Constants as Constants
-from PIL import Image
-from TeamFightTacticsBot.Utility.Utils import buy_champions
-from TeamFightTacticsBot.Utility.Utils import get_screen
+import TeamFightTacticsBot.Utility.Utils as Utils
+import TeamFightTacticsBot.Utility.ConfigFileLoader as ConfigFileLoader
+from TeamFightTacticsBot.Enumerators.Champions import Champions
+from TeamFightTacticsBot.Enumerators.Synergies import Synergies
 import os
 
 
@@ -17,8 +18,9 @@ def start():
         bot_initialize()
 
     if debugging:
-        Constants.variables_initialize(os.path.dirname(__file__))
-        buy_champions(Image.open("StoreTest.png"), None, None)
+        Utils.initialize_resources(os.path.dirname(__file__))
+
+        # buy_champions(Image.open("StoreTest.png"), None, None)
 
         # print(str(get_items_carasel(test)))
 
