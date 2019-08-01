@@ -11,11 +11,31 @@ from TeamFightTacticsBot.Structures.Point import Point
 
 # Constants
 from TeamFightTacticsBot.Enumerators.Champions import Champions
+from TeamFightTacticsBot.Enumerators.Synergies import Synergies
 from TeamFightTacticsBot.Utility.Constants import VARIANCE_THRESHOLD, PERCENTAGE_ACCURACY, USER_32
 
 # Global Variable imports
 import TeamFightTacticsBot.Utility.Constants as Constants
 import TeamFightTacticsBot.Utility.GameConstants as GameConstants
+import TeamFightTacticsBot.Utility.ConfigFileLoader as ConfigFileLoader
+
+
+def get_boost_name(boost_name, level):
+    for synergy in Synergies:
+        if boost_name.lower() == synergy.value.name.lower():
+            thresholds = synergy.value.boost_character_thresholds
+            if isinstance(thresholds, int):
+                # Just one level
+                return boost_name + "_1"
+            else:
+                if level <= 0:
+                    return boost_name + "_1"
+                # Multiple levels
+                max_levels = len(thresholds)
+                if level > max_levels:
+                    return boost_name + "_" + str(max_levels)
+                else:
+                    return boost_name + "_" + str(level)
 
 
 def find_carousel_starting_location(tested):
@@ -176,7 +196,7 @@ def find_health_bar_locations(image, number_of_bars):
     return locations
 
 
-def buy_champions(screen, stage, board):
+def buy_champions(screen, board):
     gold = get_gold(screen)
     champion_list = shop_to_champion(screen)
     champion_priority = []
@@ -185,12 +205,13 @@ def buy_champions(screen, stage, board):
     for champion in champion_list:
         print(str(champion))
         total_cost += champion.cost
+
     print("Total Cost: " + str(total_cost))
     print("Gold: " + str(gold))
-    if stage is 1:
+    if GameConstants.CURRENT_STAGE is 1:
         if total_cost < gold:
             buy((1, 2, 3, 4, 5))
-    # elif stage is 2:
+    # elif GameConstants.CURRENT_STAGE is 2:
 
     # else:
 
@@ -743,16 +764,20 @@ def compare_pixels_blue(tested, master):
     return abs(master[2] - tested[2])
 
 
+def get_analyzable_relative_path():
+    return Constants.MAIN_FILE_LOCATION + "/Resources/Analyzable/"
+
+
+def get_config_relative_path():
+    return Constants.MAIN_FILE_LOCATION + "/Resources/Config/"
+
+
 def get_misc_relative_path():
     return Constants.MAIN_FILE_LOCATION + "/Resources/Final/Misc/"
 
 
 def get_button_relative_path():
     return Constants.MAIN_FILE_LOCATION + "/Resources/Final/Buttons/"
-
-
-def get_analyzable_relative_path():
-    return Constants.MAIN_FILE_LOCATION + "/Resources/Analyzable/"
 
 
 def get_screen():
@@ -775,3 +800,8 @@ def click(point):
 def click_and_drag(initial_point, final_point):
     auto_gui.moveTo(initial_point.x, initial_point.y)
     auto_gui.dragTo(final_point.x, final_point.y, button='left')
+
+
+def initialize_resources(main_file_path):
+    Constants.variables_initialize(main_file_path)
+    ConfigFileLoader.load_configs(get_config_relative_path())
