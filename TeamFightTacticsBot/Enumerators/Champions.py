@@ -35,8 +35,8 @@ class Champions(Enum):
     AATROX = Champion("Aatrox", 3, 700, .65, 65, 1, 25, 20, (Synergies.DEMON, Synergies.BLADEMASTER))
     ASHE = Champion("Ashe", 3, 550, .7, 65, 4, 20, 20, (Synergies.RANGER, Synergies.GLACIAL))
     EVELYNN = Champion("Evelynn", 3, 550, .6, 70, 1, 20, 20, (Synergies.ASSASSIN, Synergies.DEMON))
-    GANGPLANK = Champion("Gangplank", 3, 700, .65, 55, 1, 20, 20, (Synergies.GUNSLINGER, Synergies.BLADEMASTER,
-                                                                   Synergies.PIRATE))
+    GANGPLANK = Champion("Gangplank", 3, 700, .65, 55, 1, 20, 20,
+                         (Synergies.GUNSLINGER, Synergies.BLADEMASTER, Synergies.PIRATE))
     KATARINA = Champion("Katarina", 3, 450, .6, 50, 1, 20, 20, (Synergies.ASSASSIN, Synergies.IMPERIAL))
     KENNEN = Champion("Kennen", 3, 550, .65, 65, 2, 20, 20, (Synergies.YORDLE, Synergies.NINJA, Synergies.ELEMENTALIST))
     MORGANA = Champion("Morgana", 3, 650, .6, 50, 2, 20, 20, (Synergies.DEMON, Synergies.SORCERER))
