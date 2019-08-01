@@ -1,5 +1,4 @@
 import configparser as config_parser_master
-import fileinput
 from TeamFightTacticsBot.Structures.LearnedMetaData import LearnedMetaData
 import TeamFightTacticsBot.Utility.Constants as Constants
 
@@ -70,12 +69,35 @@ def get_rating_and_games_played(string_input):
     return LearnedMetaData(rating, games_played)
 
 
-def edit_rating_in_file(stage, string_input, new_value):
-    with open(get_config_path() + "ChampionLearnedRating.cfg", 'r') as file:
-        filedata = file.read()
-    filedata = filedata.replace(string_input, new_value)
-    with open(get_config_path() + "ChampionLearnedRating.cfg", 'w') as file:
-        file.write(filedata)
+def write_config_file():
+    file_data = make_dictionary_hell_content_as_string(CHAMPION_LEARNED_RATINGS)
+    with open(get_config_file_path("ChampionLearnedRating.cfg"), 'w') as file:
+        file.write(file_data)
+
+    file_data = make_dictionary_hell_content_as_string(SYNERGY_LEARNED_RATINGS)
+    with open(get_config_file_path("SynergyLearnedRating.cfg"), 'w') as file:
+        file.write(file_data)
+
+
+def make_dictionary_hell_content_as_string(dictionary_hell):
+    string_builder = ""
+    for stage_key in dictionary_hell:
+        string_builder += "[" + stage_key.upper() + "]\n"
+        # Content of each stage dictionary goes here
+        for value in dictionary_hell[stage_key]:
+            string_builder += value.upper() + " = " + meta_data_as_string(dictionary_hell[stage_key].get(value)) + "\n"
+
+        string_builder += "\n"
+
+    return string_builder
+
+
+def meta_data_as_string(meta_data):
+    return str(meta_data.rating) + ":" + str(meta_data.games_played)
+
+
+def get_config_file_path(file_name):
+    return get_config_path() + file_name
 
 
 def get_config_path():

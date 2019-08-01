@@ -2,6 +2,7 @@ from TeamFightTacticsBot.Utility.BotController import bot_initialize
 import TeamFightTacticsBot.Utility.Constants as Constants
 import TeamFightTacticsBot.Utility.Utils as Utils
 import TeamFightTacticsBot.Utility.ConfigFileLoader as ConfigFileLoader
+from TeamFightTacticsBot.Structures.LearnedMetaData import LearnedMetaData
 from TeamFightTacticsBot.Enumerators.Champions import Champions
 from TeamFightTacticsBot.Enumerators.Synergies import Synergies
 import os
@@ -19,9 +20,10 @@ def start():
 
     if debugging:
         Utils.initialize_resources(os.path.dirname(__file__))
+        ConfigFileLoader.write_config_file()
 
         # buy_champions(Image.open("StoreTest.png"), None, None)
-        ConfigFileLoader.edit_rating_in_file("Darius = 50:0", "Darius = 51:0")
+
         # print(str(get_items_carasel(test)))
 
 
