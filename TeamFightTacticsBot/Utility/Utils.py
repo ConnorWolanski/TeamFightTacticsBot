@@ -20,6 +20,16 @@ import TeamFightTacticsBot.Utility.GameConstants as GameConstants
 import TeamFightTacticsBot.Utility.ConfigFileLoader as ConfigFileLoader
 
 
+def is_bench_full():
+    return get_empty_bench_count() == 0
+
+
+def get_stage_name():
+    for stage in ConfigFileLoader.STAGE_LEVEL_ASSOCIATIONS:
+        if GameConstants.PLAYER_LEVEL in ConfigFileLoader.STAGE_LEVEL_ASSOCIATIONS[stage]:
+            return stage.upper()
+
+
 def get_boost_name(boost_name, level):
     returned = ""
 
@@ -156,9 +166,11 @@ def get_items_carousel(screen):
     carousel = screen.crop((300, 195, 1500, 850))
     locations = find_health_bar_locations(carousel, GameConstants.CAROUSEL_CHAMPION_COUNT)
     items = []
+
     for loc in locations:
         temp_image = carousel.crop((loc[0], loc[1] + 12, loc[0] + 23, loc[1] + 35))
         items.append(image_to_item(temp_image))
+
     return items
 
 
@@ -194,94 +206,122 @@ def find_health_bar_locations(image, number_of_bars):
     y_location = 0
     count = 0
     locations = []
+
     while count < number_of_bars and y_location < image.size[1]:
         for x_location in range(image.size[0]):
             if check_health_bar_location(image, x_location, y_location):
                 locations.append((x_location, y_location))
                 count += 1
         y_location += 1
+
     return locations
 
 
-def buy_champions(screen, board):
+def buy_champions(screen):
     gold = get_gold(screen)
     champion_list = shop_to_champion(screen)
-    owned_champions = get_champions_owned(board)
-    champion_shop_indexes = []
-    index = 1
-    for champions in champion_list:
-        champion_shop_indexes.append((champions, index))
-        index += 1
-    print("Owned: ")
-    for champion in owned_champions:
-        print(str(champion))
-
+    owned_champions = get_champions_owned()
+    champion_and_index_in_shop = []
     total_cost = 0
-    print("Shop: ")
+
+    index = 1
     for champion in champion_list:
-        print(str(champion))
+        champion_and_index_in_shop.append((champion, index))
         total_cost += champion.cost
+        index += 1
 
     print("Total Cost: " + str(total_cost))
+
+    print("Owned: ")
+    for champion in owned_champions:
+        print(str(champion.name))
+
     print("Gold: " + str(gold))
-    # first three minion rounds
+    # First three minion rounds
     if GameConstants.CURRENT_STAGE is 1:
-        if total_cost < gold:
-            buy((1, 2, 3, 4, 5))
+        to_be_bought = []
+        if total_cost <= gold and get_empty_bench_count() >= 5:
+            # This needs to first check the open bench spaces and if there is not enough
+            # it needs to either prioritize the buys in order to merge champions
+            # or if that is not possible, determine the best champions to buy out of the set
+            # and attempt to buy it in that order
+            to_be_bought = [1, 2, 3, 4, 5]
         else:
             champion_priority = prioritize_champions(champion_list, owned_champions)
             champion_priority.sort(key=lambda x: x[1], reverse=True)
             champion_priority = check_duplicates(champion_priority, owned_champions)
-            buys = []
-            for champions in champion_priority:
-                for champs in champion_shop_indexes:
-                    if (champs[0] is champions[0]) and gold >= champs[0].cost:
-                        buys.append(champs[1])
-                        champion_shop_indexes.remove(champs)
-                        gold = gold - champs[0].cost
-                        break
-                if gold is 0:
-                    break
-            buy(buys)
 
-    # first rounds of going against people
+            break_out = False
+            for champion_and_rating_tuple in champion_priority:
+                for champion_and_index_tuple in champion_and_index_in_shop:
+                    if (champion_and_index_tuple[0] is champion_and_rating_tuple[0]) and \
+                            gold >= champion_and_index_tuple[0].cost:
+
+                        if is_bench_full():
+                            break_out = True
+                            break
+
+                        print(get_empty_bench_count())
+
+                        to_be_bought.append(champion_and_index_tuple[1])
+                        champion_and_index_in_shop.remove(champion_and_index_tuple)
+                        gold = gold - champion_and_index_tuple[0].cost
+                        break
+
+                if gold is 0 or break_out:
+                    break
+
+            # Check per buy not for total buy incase you buy a list and one fails that ISNT the first,
+            # you are now desynced in the game and code memory
+        if buy_list(to_be_bought):
+            for shop_index in to_be_bought:
+                GameConstants.PLAYER_BOARD.bench_slots[get_first_empty_bench_slot()] = champion_list[shop_index - 1]
+
+    # First rounds of going against people
     # elif GameConstants.CURRENT_STAGE is 2:
 
-    # rounds after gromp
+    # rounds after Golems
     # elif GameConstants.CURRENT_STAGE is 3:
 
-    # rounds after wolves
+    # rounds after Wolves
     # elif GameConstants.CURRENT_STAGE is 4:
 
-    # rounds after raptor
+    # rounds after Raptors
     # else
 
 
 def prioritize_champions(champions, owned_champions):
-    reordered_champions = []
     synergies = []
     all_champions = []
     all_champions.extend(owned_champions)
     all_champions.extend(champions)
+
     for champion in remove_duplicates(all_champions):
+        if champion is None:
+            continue
+
         for synergy in champion.synergies:
             synergies.append(synergy.value)
 
     ordered_synergies = order_synergies(synergies)
-    ordered_champions_pair = []
+    champion_and_rating_tuples = []
+
     for champion in champions:
-        ordered_champions_pair.append((champion, get_champion_buy_rating(champion, ordered_synergies)))
-    return ordered_champions_pair
+        champion_and_rating_tuples.append((champion, get_champion_buy_rating(champion, ordered_synergies)))
+
+    return champion_and_rating_tuples
 
 
 def get_champion_buy_rating(champion, ordered_synergies):
     index = 0
     total = 0
+
     for synergies in champion.synergies:
         for syn in ordered_synergies:
             if synergies.value is syn[1]:
                 total += syn[0]
                 index += 1
+
     if index is not 0:
         return total/index
     else:
@@ -289,20 +329,25 @@ def get_champion_buy_rating(champion, ordered_synergies):
 
 
 def order_synergies(synergies):
-    ordered_synergies = synergies
     synergy_rating_pair = []
+
     for synergy in synergies:
-        temp_pair = (ConfigFileLoader.SYNERGY_LEARNED_RATINGS["early_game"].
+        temp_pair = (ConfigFileLoader.SYNERGY_LEARNED_RATINGS[get_stage_name().lower()].
                      get(get_boost_name(synergy.name, 1)).rating, synergy)
+
         if temp_pair not in synergy_rating_pair:
             synergy_rating_pair.append(temp_pair)
         else:
             list_location = synergy_rating_pair.index(temp_pair)
+
             if isinstance(synergy_rating_pair[list_location][1].boost_character_thresholds, int):
                 threshold = synergy_rating_pair[list_location][1].boost_character_thresholds
             else:
                 threshold = synergy_rating_pair[list_location][1].boost_character_thresholds[0]
-            synergy_rating_pair[list_location] = (int((synergy_rating_pair[list_location][0] + (1/threshold*3))), synergy)
+
+            synergy_rating_pair[list_location] = (int((synergy_rating_pair[list_location][0] +
+                                                       (1/threshold*3))), synergy)
+
     synergy_rating_pair.sort(key=lambda x: x[0], reverse=True)
     return synergy_rating_pair
 
@@ -310,13 +355,16 @@ def order_synergies(synergies):
 def check_duplicates(champions, owned_champions):
     list_duplicates = []
     not_duplicated = []
+
     for champion in champions:
         if champion[0] in owned_champions:
             list_duplicates.append(champion)
             continue
+
         if champions.count(champion) >= 2:
             list_duplicates.append(champion)
             continue
+
         not_duplicated.append(champion)
 
     list_duplicates.extend(not_duplicated)
@@ -325,59 +373,75 @@ def check_duplicates(champions, owned_champions):
 
 def remove_duplicates(any_list):
     list_without_duplicates = []
+
     for elements in any_list:
         if elements not in list_without_duplicates:
             list_without_duplicates.append(elements)
+
     return list_without_duplicates
 
 
-def buy(slots):
-    for slot in slots:
-        if slot is 1:
-            click(Point(500, 970))
-        elif slot is 2:
-            click(Point(730, 970))
-        elif slot is 3:
-            click(Point(920, 970))
-        elif slot is 4:
-            click(Point(1150, 970))
-        elif slot is 5:
-            click(Point(1320, 970))
-        else:
-            print("Invalid slot")
-    print("Bought slots")
+def buy_list(to_be_bought):
+    for slot in to_be_bought:
+        if not buy(slot):
+            return False
+
+    return True
 
 
-def get_first_empty_bench_slot(board):
+def buy(slot):
+    if slot is 1:
+        click(GameConstants.SHOP_SLOT_CLICKABLE_LOCATIONS[0])
+    elif slot is 2:
+        click(GameConstants.SHOP_SLOT_CLICKABLE_LOCATIONS[1])
+    elif slot is 3:
+        click(GameConstants.SHOP_SLOT_CLICKABLE_LOCATIONS[2])
+    elif slot is 4:
+        click(GameConstants.SHOP_SLOT_CLICKABLE_LOCATIONS[3])
+    elif slot is 5:
+        click(GameConstants.SHOP_SLOT_CLICKABLE_LOCATIONS[4])
+    else:
+        print("Invalid slot")
+        return False
+    # Might have to be changed later to slow the bot inbetween buying MULTIPLE champions
+    time.sleep(.1)
+    print("Bought slot " + str(slot))
+    return True
+
+
+def get_first_empty_bench_slot():
     index = 0
-    for slot in board.bench_slots:
+    for slot in GameConstants.PLAYER_BOARD.bench_slots:
         if slot is None:
             return index
         index += 1
-    return None
+    return False
 
 
-def get_empty_bench_count(board):
+def get_empty_bench_count():
     occupied = 0
-    for slot in board.bench_slots:
+    for slot in GameConstants.PLAYER_BOARD.bench_slots:
         if slot is not None:
             occupied += 1
     return GameConstants.BENCH_SLOTS - occupied
 
 
-def get_champions_owned(board):
+def get_champions_owned():
     champions = []
-    for row in board.board_slots:
+
+    for row in GameConstants.PLAYER_BOARD.board_slots:
         for col in row:
             if col is None:
                 continue
             else:
                 champions.append(col)
-    for slot in board.bench_slots:
+
+    for slot in GameConstants.PLAYER_BOARD.bench_slots:
         if slot is None:
             continue
         else:
             champions.append(slot)
+
     return champions
 
 
@@ -694,7 +758,10 @@ def make_image_readable(image):
     image = Image.new('1', (image.size[0], image.size[1]))
     image.putdata(data)
 
-    resizable = tuple(2*x for x in image.size)
+    # This is the old resizable before we fixed the gold finding
+    # resizable = tuple(2*x for x in image.size)
+
+    resizable = 2*image.size[0], 3*image.size[1]
     image = image.resize(resizable)
 
     width, height = image.size
