@@ -30,7 +30,7 @@ def get_boost_name(boost_name, level):
         thresholds = synergy.value.boost_character_thresholds
         if isinstance(thresholds, int):
             # Just one level
-            returned = boost_name + "_1"
+            returned = boost_name + "_" + str(thresholds)
         else:
             if level <= 0:
                 returned = boost_name + "_" + str(thresholds[0])
@@ -42,7 +42,7 @@ def get_boost_name(boost_name, level):
                 else:
                     returned = boost_name + "_" + str(thresholds[level - 1])
 
-    return returned.upper()
+    return returned.lower()
 
 
 def find_carousel_starting_location(tested):
@@ -151,7 +151,7 @@ def is_a_close_color(pixel, master_tuple):
 
     return True
 
-    
+
 def get_items_carousel(screen):
     carousel = screen.crop((300, 195, 1500, 850))
     locations = find_health_bar_locations(carousel, GameConstants.CAROUSEL_CHAMPION_COUNT)
@@ -206,21 +206,129 @@ def find_health_bar_locations(image, number_of_bars):
 def buy_champions(screen, board):
     gold = get_gold(screen)
     champion_list = shop_to_champion(screen)
-    champion_priority = []
-    # champions = get_champions_owned(board)
+    owned_champions = get_champions_owned(board)
+    champion_shop_indexes = []
+    index = 1
+    for champions in champion_list:
+        champion_shop_indexes.append((champions, index))
+        index += 1
+    print("Owned: ")
+    for champion in owned_champions:
+        print(str(champion))
+
     total_cost = 0
+    print("Shop: ")
     for champion in champion_list:
         print(str(champion))
         total_cost += champion.cost
 
     print("Total Cost: " + str(total_cost))
     print("Gold: " + str(gold))
+    # first three minion rounds
     if GameConstants.CURRENT_STAGE is 1:
         if total_cost < gold:
             buy((1, 2, 3, 4, 5))
+        else:
+            champion_priority = prioritize_champions(champion_list, owned_champions)
+            champion_priority.sort(key=lambda x: x[1], reverse=True)
+            champion_priority = check_duplicates(champion_priority, owned_champions)
+            buys = []
+            for champions in champion_priority:
+                for champs in champion_shop_indexes:
+                    if (champs[0] is champions[0]) and gold >= champs[0].cost:
+                        buys.append(champs[1])
+                        champion_shop_indexes.remove(champs)
+                        gold = gold - champs[0].cost
+                        break
+                if gold is 0:
+                    break
+            buy(buys)
+
+    # first rounds of going against people
     # elif GameConstants.CURRENT_STAGE is 2:
 
-    # else:
+    # rounds after gromp
+    # elif GameConstants.CURRENT_STAGE is 3:
+
+    # rounds after wolves
+    # elif GameConstants.CURRENT_STAGE is 4:
+
+    # rounds after raptor
+    # else
+
+
+def prioritize_champions(champions, owned_champions):
+    reordered_champions = []
+    synergies = []
+    all_champions = []
+    all_champions.extend(owned_champions)
+    all_champions.extend(champions)
+    for champion in remove_duplicates(all_champions):
+        for synergy in champion.synergies:
+            synergies.append(synergy.value)
+
+    ordered_synergies = order_synergies(synergies)
+    ordered_champions_pair = []
+    for champion in champions:
+        ordered_champions_pair.append((champion, get_champion_buy_rating(champion, ordered_synergies)))
+    return ordered_champions_pair
+
+
+def get_champion_buy_rating(champion, ordered_synergies):
+    index = 0
+    total = 0
+    for synergies in champion.synergies:
+        for syn in ordered_synergies:
+            if synergies.value is syn[1]:
+                total += syn[0]
+                index += 1
+    if index is not 0:
+        return total/index
+    else:
+        return 0
+
+
+def order_synergies(synergies):
+    ordered_synergies = synergies
+    synergy_rating_pair = []
+    for synergy in synergies:
+        temp_pair = (ConfigFileLoader.SYNERGY_LEARNED_RATINGS["early_game"].
+                     get(get_boost_name(synergy.name, 1)).rating, synergy)
+        if temp_pair not in synergy_rating_pair:
+            synergy_rating_pair.append(temp_pair)
+        else:
+            list_location = synergy_rating_pair.index(temp_pair)
+            if isinstance(synergy_rating_pair[list_location][1].boost_character_thresholds, int):
+                threshold = synergy_rating_pair[list_location][1].boost_character_thresholds
+            else:
+                threshold = synergy_rating_pair[list_location][1].boost_character_thresholds[0]
+            synergy_rating_pair[list_location] = (int((synergy_rating_pair[list_location][0] + (1/threshold*3))), synergy)
+    synergy_rating_pair.sort(key=lambda x: x[0], reverse=True)
+    return synergy_rating_pair
+
+
+def check_duplicates(champions, owned_champions):
+    list_duplicates = []
+    not_duplicated = []
+    for champion in champions:
+        if champion[0] in owned_champions:
+            list_duplicates.append(champion)
+            continue
+        if champions.count(champion) >= 2:
+            list_duplicates.append(champion)
+            continue
+        not_duplicated.append(champion)
+
+    list_duplicates.extend(not_duplicated)
+    return list_duplicates
+
+
+def remove_duplicates(any_list):
+    list_without_duplicates = []
+    for elements in any_list:
+        if elements not in list_without_duplicates:
+            list_without_duplicates.append(elements)
+    return list_without_duplicates
 
 
 def buy(slots):
@@ -266,7 +374,10 @@ def get_champions_owned(board):
             else:
                 champions.append(col)
     for slot in board.bench_slots:
-        champions.append(slot)
+        if slot is None:
+            continue
+        else:
+            champions.append(slot)
     return champions
 
 
