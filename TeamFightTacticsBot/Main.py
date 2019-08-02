@@ -1,12 +1,9 @@
 from TeamFightTacticsBot.Utility.BotController import bot_initialize
 import TeamFightTacticsBot.Utility.Constants as Constants
+import TeamFightTacticsBot.Utility.GameConstants as GameConstants
 import TeamFightTacticsBot.Utility.Utils as Utils
-import TeamFightTacticsBot.Utility.ConfigFileLoader as ConfigFileLoader
-from TeamFightTacticsBot.Structures.PlayingBoard import PlayingBoard
-from PIL import Image
-from TeamFightTacticsBot.Structures.LearnedMetaData import LearnedMetaData
+import TeamFightTacticsBot.Utility.TestingUtils as TestingUtils
 from TeamFightTacticsBot.Enumerators.Champions import Champions
-from TeamFightTacticsBot.Enumerators.Synergies import Synergies
 import os
 
 
@@ -22,12 +19,17 @@ def start():
 
     if debugging:
         Utils.initialize_resources(os.path.dirname(__file__))
-        ConfigFileLoader.write_config_file()
-        board = PlayingBoard("Connor")
-        board.board_slots[1][1] = Champions.MORDEKAISER.value
-        Utils.buy_champions(Image.open("TestDuplicates2.png"), board)
 
-        # print(str(get_items_carasel(test)))
+        GameConstants.PLAYER_BOARD.board_slots[1][1] = Champions.MORDEKAISER.value
+        shops = TestingUtils.get_images_from_directory()
+        for shop in shops:
+            Utils.buy_champions(shop)
+
+        owned = []
+        for champion in Utils.get_champions_owned():
+            owned.append(champion.name)
+
+        print(owned)
 
 
 start()

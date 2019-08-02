@@ -1,4 +1,7 @@
 from TeamFightTacticsBot.Structures.Point import Point
+from TeamFightTacticsBot.Structures.PlayingBoard import PlayingBoard
+
+CHAMPION_MAX_LEVEL = 3
 
 CAROUSEL_CHAMPION_COUNT = 9
 
@@ -9,14 +12,22 @@ BOARD_SIZE_WIDTH = 7
 BOARD_SIZE_HEIGHT = 3
 BOARD_SLOT_CLICKABLE_LOCATIONS = []
 
+SHOP_SIZE = 5
+SHOP_SLOT_CLICKABLE_LOCATIONS = [Point(500, 970), Point(730, 970), Point(920, 970), Point(1150, 970), Point(1320, 970)]
+
 STREAK_BONUS_GOLD_THRESHOLD = [2, 4, 7]
 
 # In game variables
+PLAYER_LEVEL = 1
+PLAYER_BOARD = PlayingBoard("Me")
+
 CURRENT_STAGE = 1
-CURRENT_ROUND = 0
+CURRENT_ROUND = 1
 
 
 def variables_initialize():
+    global CHAMPION_MAX_LEVEL
+
     global CAROUSEL_CHAMPION_COUNT
 
     global BENCH_SLOTS
@@ -28,7 +39,16 @@ def variables_initialize():
     global BOARD_SLOT_CLICKABLE_LOCATIONS
     BOARD_SLOT_CLICKABLE_LOCATIONS = set_board_clickable_locations()
 
+    global SHOP_SLOT_CLICKABLE_LOCATIONS
+
     global STREAK_BONUS_GOLD_THRESHOLD
+
+    # Import ongoing game variables
+    global PLAYER_LEVEL
+    global PLAYER_BOARD
+
+    global CURRENT_STAGE
+    global CURRENT_ROUND
 
 
 def set_bench_clickable_locations():

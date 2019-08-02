@@ -9,6 +9,7 @@ class Champion:
         self.armor = armor
         self.magic_resist = magic_resist
         self.synergies = synergies
+        self.level = 1
 
     def __str__(self):
         string = "[" + \
@@ -24,3 +25,6 @@ class Champion:
             string = string + ", Synergy: " + str(synergy.value)
         string += "]"
         return string
+
+    def is_ranged(self):
+        return self.attack_range != 1
