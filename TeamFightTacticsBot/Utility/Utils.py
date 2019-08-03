@@ -5,7 +5,7 @@ import pyautogui as auto_gui
 import pyscreenshot as image_grab
 from PIL import Image, ImageOps
 import math
-
+import copy
 # Objects
 from TeamFightTacticsBot.Structures.Point import Point
 
@@ -20,16 +20,19 @@ import TeamFightTacticsBot.Utility.GameConstants as GameConstants
 import TeamFightTacticsBot.Utility.ConfigFileLoader as ConfigFileLoader
 
 
+# returns if bench is full
 def is_bench_full():
     return get_empty_bench_count() == 0
 
 
+# gets the stage the player is currently on
 def get_stage_name():
     for stage in ConfigFileLoader.STAGE_LEVEL_ASSOCIATIONS:
         if GameConstants.PLAYER_LEVEL in ConfigFileLoader.STAGE_LEVEL_ASSOCIATIONS[stage]:
             return stage.upper()
 
 
+# formates the name_threshold of a synergy to access in the rating dictionary
 def get_boost_name(boost_name, level):
     returned = ""
 
@@ -55,11 +58,13 @@ def get_boost_name(boost_name, level):
     return returned.lower()
 
 
+# Finds and returns you players pixel location at the start of a carousel
 def find_carousel_starting_location(tested):
     tested = tested.crop((250, 175, 1600, 1080))
     return find_pixels_of_interest_for_starting_circle(tested)
 
 
+# Roughly gets the circle you start at in carousel
 def find_pixels_of_interest_for_starting_circle(tested_area):
     to_be_averaged = find_points_of_interest_by_color(tested_area, (254, 254, 145), 50)
 
@@ -74,6 +79,7 @@ def find_pixels_of_interest_for_starting_circle(tested_area):
     return Point(int(x), int(y))
 
 
+# Returns a list of item box pixel locations on the ground
 def get_item_box_location(tested):
     tested = tested.crop((300, 180, 1550, 800))
     # Not sure if this method will work for item boxes
@@ -81,10 +87,12 @@ def get_item_box_location(tested):
     return find_pixels_of_interest_for_item_boxes(tested)
 
 
+# Gets a list of pixel locations that are possibly item boxes to check
 def find_pixels_of_interest_for_item_boxes(tested_area):
     return find_points_of_interest_by_color(tested_area, (162, 254, 254), 25)
 
 
+# This takes a color and returns a list of points in which that color is present in an area
 def find_points_of_interest_by_color(tested_area, master_color_tuple, cooldown_radius):
     interested_locations = []
     # 162, 254, 254
@@ -129,6 +137,7 @@ def find_points_of_interest_by_color(tested_area, master_color_tuple, cooldown_r
     return interested_locations
 
 
+# Checks whether two points are within a certain range of eachother
 def is_in_radius(point, point_list, cooldown_radius):
     for p in point_list:
         distance = math.sqrt(math.pow((p.x - point.x), 2) + math.pow(p.y - point.y, 2))
@@ -138,10 +147,12 @@ def is_in_radius(point, point_list, cooldown_radius):
     return False
 
 
+# Checks whether a pixel is black or not
 def pixel_is_black(pixel):
     return pixel == (0, 0, 0)
 
 
+# Checks if a color is within a certain acceptance(5) of a specific color
 def is_a_close_color(pixel, master_tuple):
     # For item box: 162, 254, 254
 
@@ -162,6 +173,7 @@ def is_a_close_color(pixel, master_tuple):
     return True
 
 
+# Searches the carousel and returns all available items
 def get_items_carousel(screen):
     carousel = screen.crop((300, 195, 1500, 850))
     locations = find_health_bar_locations(carousel, GameConstants.CAROUSEL_CHAMPION_COUNT)
@@ -174,6 +186,7 @@ def get_items_carousel(screen):
     return items
 
 
+# Takes an image and determines what item it represents and returns the item
 def image_to_item(image):
     count = 0
     while count < len(Constants.ITEM_IMAGE_LIST):
@@ -183,6 +196,7 @@ def image_to_item(image):
     return get_item_from_list_index(count)
 
 
+# Gets the item from its image index
 def get_item_from_list_index(count):
     if count < len(Constants.ITEM_NAMES_LIST):
         return Constants.ITEM_NAMES_LIST[count]
@@ -190,6 +204,7 @@ def get_item_from_list_index(count):
         return 'Could not parse item'
 
 
+# This determines if a certain location is a character healthbar in carousel
 def check_health_bar_location(image, x, y):
     # checks only if one star need to add or for two and three stars later and for enemy bar
     im = image.load()
@@ -202,6 +217,7 @@ def check_health_bar_location(image, x, y):
     return False
 
 
+# Finds all locations of champion health bars within the carousel
 def find_health_bar_locations(image, number_of_bars):
     y_location = 0
     count = 0
@@ -217,6 +233,7 @@ def find_health_bar_locations(image, number_of_bars):
     return locations
 
 
+# This buys the champions from the shop based on what is best for that round and with what you have
 def buy_champions(screen):
     gold = get_gold(screen)
     champion_list = shop_to_champion(screen)
@@ -229,24 +246,22 @@ def buy_champions(screen):
         champion_and_index_in_shop.append((champion, index))
         total_cost += champion.cost
         index += 1
-
-    print("Total Cost: " + str(total_cost))
-
     print("Owned: ")
     for champion in owned_champions:
         print(str(champion.name))
 
-    print("Gold: " + str(gold))
+    # print("Gold: " + str(gold))
     # First three minion rounds
     if GameConstants.CURRENT_STAGE is 1:
-        to_be_bought = []
+        # for early games buys all 5 if can afford and has the slots
         if total_cost <= gold and get_empty_bench_count() >= 5:
-            # This needs to first check the open bench spaces and if there is not enough
-            # it needs to either prioritize the buys in order to merge champions
-            # or if that is not possible, determine the best champions to buy out of the set
-            # and attempt to buy it in that order
             to_be_bought = [1, 2, 3, 4, 5]
+            if buy_list(to_be_bought):
+                for shop_index in to_be_bought:
+                    add_champion_to_board(champion_list[shop_index - 1], owned_champions)
+                    owned_champions = get_champions_owned()
         else:
+            # First Prioritizes champions then puts duplicates in the front
             champion_priority = prioritize_champions(champion_list, owned_champions)
             champion_priority.sort(key=lambda x: x[1], reverse=True)
             champion_priority = check_duplicates(champion_priority, owned_champions)
@@ -256,26 +271,19 @@ def buy_champions(screen):
                 for champion_and_index_tuple in champion_and_index_in_shop:
                     if (champion_and_index_tuple[0] is champion_and_rating_tuple[0]) and \
                             gold >= champion_and_index_tuple[0].cost:
-
                         if is_bench_full():
                             break_out = True
                             break
 
-                        print(get_empty_bench_count())
-
-                        to_be_bought.append(champion_and_index_tuple[1])
-                        champion_and_index_in_shop.remove(champion_and_index_tuple)
-                        gold = gold - champion_and_index_tuple[0].cost
+                        if buy(champion_and_index_tuple[1]):
+                            champion_and_index_in_shop.remove(champion_and_index_tuple)
+                            gold = gold - champion_and_index_tuple[0].cost
+                            add_champion_to_board(champion_and_index_tuple[0], owned_champions)
+                            owned_champions = get_champions_owned()
                         break
 
                 if gold is 0 or break_out:
                     break
-
-            # Check per buy not for total buy incase you buy a list and one fails that ISNT the first,
-            # you are now desynced in the game and code memory
-        if buy_list(to_be_bought):
-            for shop_index in to_be_bought:
-                GameConstants.PLAYER_BOARD.bench_slots[get_first_empty_bench_slot()] = champion_list[shop_index - 1]
 
     # First rounds of going against people
     # elif GameConstants.CURRENT_STAGE is 2:
@@ -290,6 +298,80 @@ def buy_champions(screen):
     # else
 
 
+# Adds a champion to your board either from carousel or shop and combines if nessecary
+def add_champion_to_board(champion, owned_champions):
+
+    if (champion not in owned_champions) or owned_champions.count(champion) < 2:
+        GameConstants.PLAYER_BOARD.bench_slots[get_first_empty_bench_slot()] = copy.copy(champion)
+    elif owned_champions.count(champion) is 2:
+        combine_champions_on_board(champion)
+        temp_copy = copy.copy(champion)
+        temp_copy.level += 1
+        owned_champions_after_combined = get_champions_owned()
+        # if two 2 stars are already owns
+        if owned_champions_after_combined.count(temp_copy) is 3:
+            combine_champions_on_board(temp_copy)
+    else:
+        return False
+    return True
+
+
+# Combines a champion into its first spot and levels it up
+def combine_champions_on_board(champion):
+    print("Combining " + str(champion))
+    temp_champion = copy.copy(champion)
+    temp_champion.level += 1
+    first_of_champion_index = get_first_of_champion(champion)
+    if isinstance(first_of_champion_index, int):
+        GameConstants.PLAYER_BOARD.bench_slots[first_of_champion_index] = temp_champion
+        remove_champion_from_board(champion)
+    else:
+        GameConstants.PLAYER_BOARD.board_slots[first_of_champion_index[0]][first_of_champion_index[1]] = \
+            temp_champion
+        remove_champion_from_board(champion)
+
+
+# Removes all instances of a champion from your board
+def remove_champion_from_board(champion):
+    row_index = 0
+    for row in GameConstants.PLAYER_BOARD.board_slots:
+        col_index = 0
+        for col in row:
+            if col is not None:
+                if col == champion:
+                    GameConstants.PLAYER_BOARD.board_slots[row_index][col_index] = None
+            col_index += 1
+        row_index += 1
+    bench_index = 0
+    for slot in GameConstants.PLAYER_BOARD.bench_slots:
+        if slot is not None:
+            if slot == champion:
+                GameConstants.PLAYER_BOARD.bench_slots[bench_index] = None
+        bench_index += 1
+    return True
+
+
+# Returns the index first instance of a champion on your board
+def get_first_of_champion(champion):
+    row_index = 0
+    for row in GameConstants.PLAYER_BOARD.board_slots:
+        col_index = 0
+        for col in row:
+            if col is not None:
+                if col == champion:
+                    return tuple((row_index, col_index))
+            col_index += 1
+        row_index += 1
+    bench_index = 0
+    for slot in GameConstants.PLAYER_BOARD.bench_slots:
+        if slot is not None:
+            if slot == champion:
+                return bench_index
+        bench_index += 1
+    return False
+
+
+# This reorders a list of champions based on their priority to buy
 def prioritize_champions(champions, owned_champions):
     synergies = []
     all_champions = []
@@ -312,6 +394,7 @@ def prioritize_champions(champions, owned_champions):
     return champion_and_rating_tuples
 
 
+# returns a champions rating in which you want to buy it based on its synergies and its own rating
 def get_champion_buy_rating(champion, ordered_synergies):
     index = 0
     total = 0
@@ -328,6 +411,7 @@ def get_champion_buy_rating(champion, ordered_synergies):
         return 0
 
 
+# This orders a list of synergies based on their ratings
 def order_synergies(synergies):
     synergy_rating_pair = []
 
@@ -352,6 +436,7 @@ def order_synergies(synergies):
     return synergy_rating_pair
 
 
+# This checks a list of champions and puts all duplicates to the front
 def check_duplicates(champions, owned_champions):
     list_duplicates = []
     not_duplicated = []
@@ -371,6 +456,7 @@ def check_duplicates(champions, owned_champions):
     return list_duplicates
 
 
+# This returns a list in which the duplicates are made to be only one
 def remove_duplicates(any_list):
     list_without_duplicates = []
 
@@ -381,6 +467,7 @@ def remove_duplicates(any_list):
     return list_without_duplicates
 
 
+# This buys a list of slots from the shop and returns true if it was done
 def buy_list(to_be_bought):
     for slot in to_be_bought:
         if not buy(slot):
@@ -389,6 +476,7 @@ def buy_list(to_be_bought):
     return True
 
 
+# This buysa a single slot from the list and returns true if it was done
 def buy(slot):
     if slot is 1:
         click(GameConstants.SHOP_SLOT_CLICKABLE_LOCATIONS[0])
@@ -409,6 +497,7 @@ def buy(slot):
     return True
 
 
+# This returns the index of the first empty slot on your bench
 def get_first_empty_bench_slot():
     index = 0
     for slot in GameConstants.PLAYER_BOARD.bench_slots:
@@ -418,6 +507,7 @@ def get_first_empty_bench_slot():
     return False
 
 
+# This returns how many empty spots you have on your bench
 def get_empty_bench_count():
     occupied = 0
     for slot in GameConstants.PLAYER_BOARD.bench_slots:
@@ -426,6 +516,7 @@ def get_empty_bench_count():
     return GameConstants.BENCH_SLOTS - occupied
 
 
+# This returns a list of champions that are on your board and bench
 def get_champions_owned():
     champions = []
 
@@ -445,6 +536,7 @@ def get_champions_owned():
     return champions
 
 
+# This crops the slots from the shop in order to be checked
 def crop_shop(screen):
     return [screen.crop((479, 927, 674, 1073)),
             screen.crop((680, 927, 875, 1073)),
@@ -453,6 +545,7 @@ def crop_shop(screen):
             screen.crop((1284, 927, 1479, 1073))]
 
 
+# This takes the screen and crops the shop and returns a list of champions in the shop
 def shop_to_champion(screen):
     champion_slots = []
     shop_slots = crop_shop(screen)
@@ -462,6 +555,7 @@ def shop_to_champion(screen):
     return champion_slots
 
 
+# This takes a picture of a champion and returns what champion enum from the shop images it matches
 def image_to_champion(champion_image):
     # Loop through CHARACTER_IMAGE_LIST until accuracy reaches > 90%
     champion_image_pixels = champion_image.load()
@@ -480,6 +574,7 @@ def image_to_champion(champion_image):
         return None
 
 
+# This returns the cost of a champion in the shop to know what images to seacrh
 def get_cost(pixel):
     if pixel == Constants.COST_CARD_BORDER_COLOR[0]:
         return 1
@@ -493,6 +588,7 @@ def get_cost(pixel):
         return 5
 
 
+# This returns the index at which the images of a certain champion cost start
 def search_by_cost(cost):
     if cost is 1:
         return Constants.CHARACTER_TIER_INDEXES[0]
@@ -507,6 +603,7 @@ def search_by_cost(cost):
     return 0
 
 
+# Returns a champion enum from a specific index in the images
 def get_champion_from_list_index(index):
     list_of_champion_enums = []
     for champ in Champions:
@@ -515,12 +612,14 @@ def get_champion_from_list_index(index):
     return list_of_champion_enums[index].value
 
 
+# This reads your gold from your screen and returns it
 def get_gold(screen):
     gold_image = screen.crop((868, 880, 910, 913))
     gold = int_from_image(gold_image)
     return gold
 
 
+# This checks a screenshot and returns whatever place you are currently in
 def check_place(screen):
     place = screen.load()
     if compare_pixels_strictly(place[1770, 226], (145, 109, 49), .95):
@@ -543,6 +642,7 @@ def check_place(screen):
         return 8
 
 
+# This returns a list of all the players healths based on what place you are in
 def get_player_healths(screen, place):
     healths = []
     # if you are in 1st
@@ -629,6 +729,7 @@ def get_player_healths(screen, place):
     return healths
 
 
+# This gets an int from an image and returns it for health
 def safe_get_health(fallback, image):
     """
     health = int_from_image(image)
@@ -639,6 +740,7 @@ def safe_get_health(fallback, image):
     return int_from_image(image)
 
 
+# This gets all of the players names depending on what place you are in and returns a list of them
 def get_player_names(screen, place):
     players = []
     # if you are in 1st
@@ -725,6 +827,7 @@ def get_player_names(screen, place):
     return players
 
 
+# This takes an image and parses and returns a string from it
 def string_from_image(image):
     image = make_image_readable(image)
     config_args = "-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -732,6 +835,7 @@ def string_from_image(image):
     return name
 
 
+# This takes an image and parses and returns an int from it
 def int_from_image(image):
     image = make_image_readable(image)
     num = get_text.image_to_string(image, lang='eng', config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
@@ -740,6 +844,7 @@ def int_from_image(image):
     return int(num)
 
 
+# This takes an image and makes it more clearly readable for pytesseract
 def make_image_readable(image):
     image = image.convert('L')
 
@@ -796,6 +901,7 @@ def make_image_readable(image):
     return image
 
 
+# This finds the play button and puts you in a game from it
 def get_into_game():
     play_button_location = find_play_button()
 
@@ -807,6 +913,7 @@ def get_into_game():
     Constants.in_game = True
 
 
+# This takes a  point in the play button and then clicks you accordingly into game based on it
 def click_through_to_game(point):
     # x, y is the locations of play button
     x = point.x
@@ -831,6 +938,7 @@ def click_through_to_game(point):
     check_queue(point)
 
 
+# This loops and checks queue until it pops and then accepts or declines it
 def check_queue(point):
     # get_screen()
     x = point.x
@@ -856,6 +964,7 @@ def check_queue(point):
     click(Point(x + 600, y + 600))
 
 
+# This searches you screen and finds the play button and returns its first pixel location
 def find_play_button():
     get_screen()
     screen = Image.open(get_analyzable_relative_path() + "screen.png")
@@ -864,6 +973,7 @@ def find_play_button():
     return compare_images_and_get_location_strictly(screen, play_button_image, 25)
 
 
+# This compares two images and then returns the location of the tested image
 def compare_images_and_get_location_strictly(tested, master, variance):
     tested_pixels = tested.load()
     master_pixels = master.load()
@@ -882,10 +992,12 @@ def compare_images_and_get_location_strictly(tested, master, variance):
     return None
 
 
+# This compares to image to a specific percent accuracy
 def compare_images(tested, master):
     return compare_images_strictly(tested, master, PERCENTAGE_ACCURACY)
 
 
+# This compares to images with a specified percent accuracy
 def compare_images_strictly(tested, master, variance_allowed):
     search = tested.load()
     search_from = master.load()
@@ -905,6 +1017,7 @@ def compare_images_strictly(tested, master, variance_allowed):
     return False
 
 
+# This compares to perfect accuracy
 def compare_images_exact(tested, master):
     search = tested.load()
     search_from = master.load()
@@ -918,10 +1031,12 @@ def compare_images_exact(tested, master):
     return True
 
 
+# This compares two pixels to a specified variance allowed
 def compare_pixels(tested, master):
     return compare_pixels_strictly(tested, master, VARIANCE_THRESHOLD)
 
 
+# This compares two pixels with a specified variance allowed
 def compare_pixels_strictly(tested, master, variance_threshold):
     # Each input is a pixel with array values as such: [R, G, B, A]
     # Get the limit of variance by RGB values
@@ -937,34 +1052,42 @@ def compare_pixels_strictly(tested, master, variance_threshold):
     return variance < variance_allowed
 
 
+# This compares two pixels red values
 def compare_pixels_red(tested, master):
     return abs(master[0] - tested[0])
 
 
+# This compares two pixels green values
 def compare_pixels_green(tested, master):
     return abs(master[1] - tested[1])
 
 
+# This compares two pixels blue values
 def compare_pixels_blue(tested, master):
     return abs(master[2] - tested[2])
 
 
+# This gets the relative path for the analyzable folder
 def get_analyzable_relative_path():
     return Constants.MAIN_FILE_LOCATION + "/Resources/Analyzable/"
 
 
+# This gets the relative path for the config folder
 def get_config_relative_path():
     return Constants.MAIN_FILE_LOCATION + "/Resources/Config/"
 
 
+# This gets the relative path for the misc folder
 def get_misc_relative_path():
     return Constants.MAIN_FILE_LOCATION + "/Resources/Final/Misc/"
 
 
+# This gets the relative path for the buttons folder
 def get_button_relative_path():
     return Constants.MAIN_FILE_LOCATION + "/Resources/Final/Buttons/"
 
 
+# This gets a screenshot of your screen
 def get_screen():
     screenshot_name = get_analyzable_relative_path() + "screen.png"
 
@@ -974,19 +1097,23 @@ def get_screen():
     return Image.open(screenshot_name)
 
 
+# This gets the users screensize
 def get_screensize():
     return USER_32.GetSystemMetrics(0), USER_32.GetSystemMetrics(1)
 
 
+# This clicks a specified point on your screen
 def click(point):
     auto_gui.click(point.x, point.y)
 
 
+# This clicks a specified point on your screen and drags to another point
 def click_and_drag(initial_point, final_point):
     auto_gui.moveTo(initial_point.x, initial_point.y)
     auto_gui.dragTo(final_point.x, final_point.y, button='left')
 
 
+# This initializes your constants and config files
 def initialize_resources(main_file_path):
     Constants.variables_initialize(main_file_path)
     ConfigFileLoader.load_configs(get_config_relative_path())

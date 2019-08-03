@@ -14,6 +14,7 @@ class Champion:
     def __str__(self):
         string = "[" + \
                "Champion: " + self.name + \
+               ", level: " + str(self.level) + \
                ", Cost: " + str(self.cost) + \
                ", Health: " + str(self.health) + \
                ", Attack Speed: " + str(self.attack_speed) + \
@@ -25,6 +26,9 @@ class Champion:
             string = string + ", Synergy: " + str(synergy.value)
         string += "]"
         return string
+
+    def __eq__(self, other):
+        return self.name == other.name and self.level == other.level
 
     def is_ranged(self):
         return self.attack_range != 1

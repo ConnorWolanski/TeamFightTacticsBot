@@ -5,6 +5,7 @@ import TeamFightTacticsBot.Utility.Utils as Utils
 import TeamFightTacticsBot.Utility.TestingUtils as TestingUtils
 from TeamFightTacticsBot.Enumerators.Champions import Champions
 import os
+import copy
 
 
 def start():
@@ -25,11 +26,20 @@ def start():
         for shop in shops:
             Utils.buy_champions(shop)
 
-        owned = []
-        for champion in Utils.get_champions_owned():
-            owned.append(champion.name)
-
-        print(owned)
+        print(GameConstants.PLAYER_BOARD)
+        '''
+        level_2_mord = copy.copy(Champions.MORDEKAISER.value)
+        level_2_mord.level += 1
+        GameConstants.PLAYER_BOARD.board_slots[2][1] = copy.copy(level_2_mord)
+        GameConstants.PLAYER_BOARD.bench_slots[2] = copy.copy(level_2_mord)
+        GameConstants.PLAYER_BOARD.bench_slots[3] = copy.copy(Champions.MORDEKAISER.value)
+        GameConstants.PLAYER_BOARD.bench_slots[4] = copy.copy(Champions.MORDEKAISER.value)
+        print(GameConstants.PLAYER_BOARD)
+        owned = Utils.get_champions_owned()
+        Utils.add_champion_to_board(Champions.MORDEKAISER.value, owned)
+        owned = Utils.get_champions_owned()
+        print(GameConstants.PLAYER_BOARD)
+         '''
 
 
 start()
