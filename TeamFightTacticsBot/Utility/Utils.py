@@ -20,6 +20,57 @@ import TeamFightTacticsBot.Utility.GameConstants as GameConstants
 import TeamFightTacticsBot.Utility.ConfigFileLoader as ConfigFileLoader
 
 
+# puts one point into level
+def level_up():
+    auto_gui.press("f")
+    GameConstants.PLAYER_XP += 4
+
+
+# rerolls the shop for the player
+def reroll_shop():
+    auto_gui.press("d")
+
+
+# hovers over a champion slot and then sells them
+def sell_champion(location_slot_tuple):
+    if location_slot_tuple[0] == "bench":
+        auto_gui.moveTo(GameConstants.BENCH_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple[1]].x,
+                        GameConstants.BENCH_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple[1]].y)
+    else:
+        auto_gui.moveTo(GameConstants.BOARD_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple[1]].x,
+                        GameConstants.BOARD_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple[1]].y)
+    auto_gui.press("e")
+
+
+# benches a champion you have on your board as long as your bench isn't full
+def bench_champion(board_slot):
+    if is_bench_full():
+        return False
+    else:
+        auto_gui.moveTo(GameConstants.BOARD_SLOT_CLICKABLE_LOCATIONS[board_slot].x,
+                        GameConstants.BOARD_SLOT_CLICKABLE_LOCATIONS[board_slot].y)
+        auto_gui.press("w")
+        return True
+
+
+# Takes in a tuple of whether they are on bench or board and swaps them with the second same tuple
+def swap_champion_location(location_slot_tuple_1, location_slot_tuple_2):
+    if location_slot_tuple_1[0] == "bench":
+        if location_slot_tuple_2[0] == "bench":
+            click_and_drag(GameConstants.BENCH_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple_1[1]],
+                           GameConstants.BENCH_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple_1[1]])
+        else:
+            click_and_drag(GameConstants.BENCH_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple_1[1]],
+                           GameConstants.BOARD_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple_1[1]])
+    else:
+        if location_slot_tuple_2[0] == "bench":
+            click_and_drag(GameConstants.BOARD_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple_1[1]],
+                           GameConstants.BENCH_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple_1[1]])
+        else:
+            click_and_drag(GameConstants.BOARD_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple_1[1]],
+                           GameConstants.BOARD_SLOT_CLICKABLE_LOCATIONS[location_slot_tuple_1[1]])
+
+
 # returns if bench is full
 def is_bench_full():
     return get_empty_bench_count() == 0
@@ -1110,7 +1161,7 @@ def click(point):
 # This clicks a specified point on your screen and drags to another point
 def click_and_drag(initial_point, final_point):
     auto_gui.moveTo(initial_point.x, initial_point.y)
-    auto_gui.dragTo(final_point.x, final_point.y, button='left')
+    auto_gui.dragTo(final_point.x, final_point.y, .2, button='left')
 
 
 # This initializes your constants and config files

@@ -19,6 +19,7 @@ STREAK_BONUS_GOLD_THRESHOLD = [2, 4, 7]
 
 # In game variables
 PLAYER_LEVEL = 1
+PLAYER_XP = 0
 PLAYER_BOARD = PlayingBoard("Me")
 
 CURRENT_STAGE = 1
@@ -45,6 +46,7 @@ def variables_initialize():
 
     # Import ongoing game variables
     global PLAYER_LEVEL
+    global PLAYER_XP
     global PLAYER_BOARD
 
     global CURRENT_STAGE
