@@ -6,6 +6,7 @@ import pyscreenshot as image_grab
 from PIL import Image, ImageOps
 import math
 import copy
+
 # Objects
 from TeamFightTacticsBot.Structures.Point import Point
 
@@ -906,7 +907,7 @@ def make_image_readable(image):
     for y in range(image.size[1]):
         for x in range(image.size[0]):
             pixel = image_pixels[x, y]
-            if pixel < 125:
+            if pixel < 128:
                 data.append(0)
             else:
                 data.append(255)
